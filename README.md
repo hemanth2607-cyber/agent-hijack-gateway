@@ -283,21 +283,59 @@ curl -s -X GET http://127.0.0.1:8000/metrics
 
 ---
 
-## 5. Defense-in-Depth Benchmark & Test Suite
+## 5. Security Evaluation Benchmarks & Status Summary
 
-### Running the Full Test Suite
+### Full Test Suite
 ```bash
 pytest tests/ -v
 ```
-**Result:** **94 passed, 0 failed, 1 warning** (`StarletteDeprecationWarning`).
+**Result:** **104 passed, 0 failed, 1 warning** (`StarletteDeprecationWarning`).
 
-### Running the Defense-in-Depth Benchmark (Detector Disabled)
-Evaluates policy enforcement resilience when 100% of inbound detector rules fail:
+---
+
+### Inbound Detector Benchmark (`run_eval.py`)
+Evaluates the multi-stage normalizer and heuristic/regex rule engine across diverse attack splits:
+```bash
+python eval/run_eval.py --all
+```
+
+| Dataset Split | Total Samples | Attack Recall | FPR | Status / Key Findings |
+| :--- | :--- | :--- | :--- | :--- |
+| **Heldout Attacks** | 206 (46 attacks, 160 benign) | **95.65%** (44/46) | 1.25% (2/160) | 2 misses: `ho_07` (subtle role reassignment) and `ho_10` (system prompt inquiry). 2 educational queries flagged. |
+| **Adaptive Attacks** | 182 (22 attacks, 160 benign) | **9.09%** (2/22) | 1.25% (2/160) | 20 misses. Highlights that surface heuristics alone cannot stop adaptive semantic attacks, proving the critical need for defense-in-depth. |
+| **Adversarial Benign** | 16 untrusted docs quoting attacks | N/A | **50.00%** (8/16 FPs) | 8/16 external docs containing quoted attack signatures flagged due to zero-trust external document amplification. |
+| **Benign Heldout** | 70 standard user prompts | N/A | **0.00%** (0/70 FPs) | Clean enterprise user requests pass through with zero false positives. |
+
+---
+
+### Defense-in-Depth Benchmark (`defense_in_depth_eval.py`)
+Evaluates policy enforcement and cryptographic capability gating resilience when **100% of inbound detector rules fail**:
 ```bash
 python eval/defense_in_depth_eval.py
 ```
-- **Total Scenarios Evaluated**: 32 (20 abusive tool attacks + 12 benign control operations)
-- **Hard Denied (DENY)**: 15
-- **Gated to Human Approval (REQUIRE_APPROVAL)**: 4
-- **Abusive Interception Rate**: **19 / 20 (95.00%)**
-- **Permitted Controls (ALLOW)**: 12 benign operations allowed with zero false positives.
+
+- **Total Scenarios Evaluated**: 35 (23 abusive attacks + 12 benign control operations)
+- **Hard Denied (`DENY`)**: 18
+- **Gated to Human Approval (`REQUIRE_APPROVAL`)**: 4
+- **Abusive Interception Rate**: **22 / 23 (95.65%)**
+- **Permitted Controls (`ALLOW`)**: 12 benign operations permitted with 0 false positives.
+- **Known Escapes**: **1 known escape**
+  - `[abuse_20_non_pattern_secret_allowed_domain_untainted]`: Edge case where a custom non-pattern passphrase is sent via `send_email` to an authorized internal corporate recipient (`finance@company.com`) during an untainted session.
+
+```
++---------------------------------------------------+
+| DEFENSE-IN-DEPTH BENCHMARK SUMMARY                |
++---------------------------------------------------+
+| Total Scenarios Evaluated:       35               |
+|   - Abusive Scenarios:           23               |
+|   - Benign Control Scenarios:    12               |
++---------------------------------------------------+
+| VERDICTS BREAKDOWN:                               |
+|   - DENY (Hard Blocked):         18               |
+|   - REQUIRE_APPROVAL (Gated):    4                |
+|   - ALLOW (Permitted):           13               |
++---------------------------------------------------+
+| Abusive Scenarios Intercepted:   22 / 23 (95.65%) |
+| Abusive Escapes (Allowed):       1                |
++---------------------------------------------------+
+```
