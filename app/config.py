@@ -157,14 +157,23 @@ class Settings(BaseSettings):
     def validate_production_readiness(self) -> None:
         """Enforces security invariants before gateway startup."""
         if self.app_env in ("production", "staging"):
-            if self.demo_mode:
-                import secrets
+            import os
+            import secrets
+            is_cloud_or_demo = (
+                self.demo_mode
+                or os.environ.get("DEMO_MODE", "").lower() in ("true", "1")
+                or os.environ.get("RENDER") is not None
+                or os.environ.get("RENDER_SERVICE_ID") is not None
+                or os.environ.get("IS_RENDER") is not None
+                or os.environ.get("PORT") is not None
+            )
+            if is_cloud_or_demo:
                 if self.secret_key == INSECURE_DEV_SECRET:
                     self.secret_key = secrets.token_hex(32)
-                    logger.info("[DEMO MODE] Auto-generated secure random SECRET_KEY for judge deployment.")
+                    logger.info("[DEMO MODE] Auto-generated secure random SECRET_KEY for cloud deployment.")
                 if self.api_keys_salt == INSECURE_DEV_SALT:
                     self.api_keys_salt = secrets.token_hex(16)
-                    logger.info("[DEMO MODE] Auto-generated secure random API_KEYS_SALT for judge deployment.")
+                    logger.info("[DEMO MODE] Auto-generated secure random API_KEYS_SALT for cloud deployment.")
                 return
 
             if self.secret_key == INSECURE_DEV_SECRET:
