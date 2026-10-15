@@ -105,7 +105,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         client_ip = request.client.host if request.client else "unknown"
         # Exempt health and static endpoints from aggressive rate limiting
         path = request.url.path
-        if not path.startswith("/static") and path not in ("/health", "/metrics", "/"):
+        if not path.startswith("/static") and path not in ("/health", "/healthz", "/metrics", "/", "/playground", "/scenarios.json"):
             if rate_limiter.is_rate_limited(
                 client_ip,
                 max_requests=settings.rate_limit_per_minute_ip,
@@ -209,12 +209,21 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=()"
 
-        # Content Security Policy (strict self, allows inline styles/scripts for minimal static dashboard)
+        # Content Security Policy (enforces external scripts only, supports video media)
+        media_src = "'self'"
+        frame_src = "'none'"
+        if settings.demo_video_url:
+            media_src += " https://www.youtube.com https://player.vimeo.com"
+            frame_src = "'self' https://www.youtube.com https://player.vimeo.com"
+
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline'; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data:; "
+            "script-src 'self'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com data:; "
+            "img-src 'self' data: https://lh3.googleusercontent.com; "
+            f"media-src {media_src}; "
+            f"frame-src {frame_src}; "
             "connect-src 'self'; "
             "frame-ancestors 'none'; "
             "base-uri 'self'; "

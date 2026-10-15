@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tether // Agent Hijack Shield - Defense-in-Depth AI Gateway</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700..800&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/landing.css">
+</head>
+<body>
+
+  <!-- Top Tactical Chassis Strip -->
+  <header class="chassis-header">
+    <div class="chassis-header-left">
+      <div class="system-status-badge">
+        <span class="status-dot"></span>
+        <span>GATEWAY ONLINE // NOMINAL</span>
+      </div>
+      <span>RACK: TETHER-PS023</span>
+      <span>MODEL: FAIL-CLOSED</span>
+    </div>
+    <div class="chassis-header-right">
+      <span id="sys-clock">SYS_CLK: --:--:--.--- UTC</span>
+      <a href="/playground">PLAYGROUND</a>
+      <a href="/docs">API DOCS</a>
+      <a href="https://github.com/hemanth2607-cyber/agent-hijack-gateway" target="_blank" rel="noopener">GITHUB</a>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="container">
+
+    <!-- Hero Card -->
+    <section class="hero-card">
+      <div class="hero-tag">
+        <span>SECURITY GATEWAY SPECIFICATION PS-023</span>
+      </div>
+      <h1 class="hero-title">TETHER // AGENT HIJACK SHIELD</h1>
+      <p class="hero-pitch">A security gateway that stops AI agents from being hijacked by hidden instructions.</p>
+      
+      <div class="hero-actions">
+        <a href="/playground" class="btn-primary" id="btn-enter-playground">
+          <span>ENTER THE PLAYGROUND</span>
+          <span>&rarr;</span>
+        </a>
+        <a href="/docs" class="btn-secondary">API SPECIFICATION (/DOCS)</a>
+        <a href="https://github.com/hemanth2607-cyber/agent-hijack-gateway" target="_blank" rel="noopener" class="btn-secondary">GITHUB REPO</a>
+      </div>
+    </section>
+
+    <!-- Video & Explainer Section -->
+    <section class="video-module">
+      <div class="video-header">
+        <span>HOW IT WORKS // ADVERSARIAL PIPELINE EXPLAINER</span>
+        <span>STATUS: SIMULATED ENVIRONMENT</span>
+      </div>
+      <div class="video-player-container" id="video-display-area">
+        <!-- Injected dynamically via landing.js: <video>, <iframe>, or interactive 60s animated fallback -->
+        <div style="color: #615E56; font-family: monospace; font-size: 13px;">INITIALIZING TELEMETRY STAGE...</div>
+      </div>
+    </section>
+
+    <!-- Three Architectural Pillars -->
+    <section class="pillars-grid">
+      <div class="pillar-card">
+        <span class="pillar-badge detect">01. INBOUND STAGE</span>
+        <h2 class="pillar-title">DETECT</h2>
+        <p class="pillar-desc">Multi-stage de-obfuscation and structural heuristics flag prompt injection before it touches agent reasoning.</p>
+      </div>
+
+      <div class="pillar-card">
+        <span class="pillar-badge restrict">02. POLICY GATING</span>
+        <h2 class="pillar-title">RESTRICT</h2>
+        <p class="pillar-desc">Least-privilege policy gating and single-use capability tokens stop unauthorized tool execution even when the detector fails.</p>
+      </div>
+
+      <div class="pillar-card">
+        <span class="pillar-badge prove">03. AUDIT PROVENANCE</span>
+        <h2 class="pillar-title">PROVE</h2>
+        <p class="pillar-desc">A forward-secure cryptographic audit chain proves every verdict and catches unauthorized log tampering instantly.</p>
+      </div>
+    </section>
+
+    <!-- Real Results Strip (Telemetry Matrix) -->
+    <section class="results-strip">
+      <div class="results-strip-header">
+        <div class="results-strip-title">
+          <span>REAL BENCHMARK METRICS</span>
+        </div>
+        <span class="results-endpoint-tag">LIVE TELEMETRY: /v1/public/summary</span>
+      </div>
+
+      <div class="results-grid">
+        <!-- Tile 1: Heldout Detection -->
+        <div class="result-tile">
+          <div>
+            <div class="result-label">HELDOUT DETECTION</div>
+            <div class="result-metric highlight" id="metric-heldout">--%</div>
+          </div>
+          <div class="result-sub" id="sub-heldout">Loading test set recall...</div>
+        </div>
+
+        <!-- Tile 2: Adaptive Attacks -->
+        <div class="result-tile">
+          <div>
+            <div class="result-label">ADAPTIVE ATTACKS</div>
+            <div class="result-metric" id="metric-adaptive">--%</div>
+          </div>
+          <div class="result-sub" id="sub-adaptive">Honest regex/heuristic baseline</div>
+        </div>
+
+        <!-- Tile 3: False Positives -->
+        <div class="result-tile">
+          <div>
+            <div class="result-label">BENIGN FALSE POSITIVES</div>
+            <div class="result-metric green" id="metric-benign-fp">--%</div>
+          </div>
+          <div class="result-sub" id="sub-benign-fp">Loading sealed controls...</div>
+        </div>
+
+        <!-- Tile 4: Permission Layer Interception -->
+        <div class="result-tile">
+          <div>
+            <div class="result-label">PERMISSION LAYER</div>
+            <div class="result-metric green" id="metric-permission-rate">--%</div>
+          </div>
+          <div class="result-sub" id="sub-permission-rate">Loading defense-in-depth rate...</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Persistent Simulation Notice Footer -->
+  <footer class="footer-notice">
+    <strong>SIMULATION NOTICE:</strong> All tools are simulated. No real actions are ever performed.
+  </footer>
+
+  <!-- External Script Only (No Inline Scripts for strict CSP compliance) -->
+  <script src="/static/landing.js"></script>
+</body>
+</html>

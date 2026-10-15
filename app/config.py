@@ -60,6 +60,16 @@ class Settings(BaseSettings):
         description="Allowed CORS origins",
     )
 
+    # Public Demo & Video Configuration
+    demo_video_url: str | None = Field(
+        default=None,
+        description="Optional external hosted demo video URL (e.g. YouTube/Vimeo embed)",
+    )
+    judge_api_key: str | None = Field(
+        default=None,
+        description="Optional pre-configured client-role judge API key (min 32 chars)",
+    )
+
     # Database
     database_url: str = Field(
         default="sqlite+aiosqlite:///./shield.db",

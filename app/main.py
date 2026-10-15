@@ -147,10 +147,12 @@ detector_instance = Detector()
 from app.routers.stats import router as stats_router
 from app.routers.eval import router as eval_router
 from app.routers.logs import router as logs_router
+from app.routers.public import router as public_router
 
 app.include_router(stats_router)
 app.include_router(eval_router)
 app.include_router(logs_router)
+app.include_router(public_router)
 
 
 # -----------------------------------------------------------------
@@ -844,9 +846,29 @@ if os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
     @app.get("/", include_in_schema=False)
-    @app.get("/dashboard", include_in_schema=False)
-    async def serve_dashboard():
+    async def serve_landing():
+        landing_file = os.path.join(frontend_dir, "landing.html")
+        if os.path.exists(landing_file):
+            return FileResponse(landing_file)
         index_file = os.path.join(frontend_dir, "index.html")
         if os.path.exists(index_file):
             return FileResponse(index_file)
-        return JSONResponse({"message": "Frontend index.html not found"})
+        return JSONResponse({"message": "Frontend not found"})
+
+    @app.get("/playground", include_in_schema=False)
+    @app.get("/dashboard", include_in_schema=False)
+    async def serve_playground():
+        playground_file = os.path.join(frontend_dir, "playground.html")
+        if os.path.exists(playground_file):
+            return FileResponse(playground_file)
+        index_file = os.path.join(frontend_dir, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return JSONResponse({"message": "Playground not found"})
+
+    @app.get("/scenarios.json", include_in_schema=False)
+    async def serve_scenarios():
+        scenarios_file = os.path.join(frontend_dir, "scenarios.json")
+        if os.path.exists(scenarios_file):
+            return FileResponse(scenarios_file, media_type="application/json")
+        return JSONResponse([])

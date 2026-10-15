@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "error-container": "#ffdad6", "on-error-container": "#93000a", "inverse-on-surface": "#f6f0e5", "on-error": "#ffffff", "on-tertiary": "#ffffff", "on-primary": "#ffffff", "on-primary-fixed": "#3a0b00", "surface-bright": "#fff8ef", "surface-container-highest": "#e8e2d7", "inverse-primary": "#ffb59e", "surface-container-low": "#f9f3e8", "primary-fixed": "#ffdbd0", "surface-tint": "#ae3200", "tertiary-fixed-dim": "#cbc6bc", "outline": "#8f7067", "surface-variant": "#e8e2d7", "on-secondary-container": "#626753", "on-tertiary-container": "#2d2b25", "tertiary-fixed": "#e7e2d8", "on-secondary-fixed-variant": "#444937", "on-primary-container": "#541400", "on-primary-fixed-variant": "#852400", "surface-dim": "#dfd9cf", "on-surface": "#1e1b15", "surface": "#fff8ef", "secondary-container": "#e0e5cc", "primary-container": "#ff5a1f", "background": "#fff8ef", "surface-container": "#f4ede3", "on-tertiary-fixed": "#1d1c15", "secondary-fixed": "#e0e5cc", "on-secondary-fixed": "#191d0e", "secondary-fixed-dim": "#c4c9b1", "outline-variant": "#e4beb3", "surface-container-high": "#eee7dd", "on-background": "#1e1b15", "on-tertiary-fixed-variant": "#49473f", "primary-fixed-dim": "#ffb59e", "on-surface-variant": "#5b4038", "primary": "#ae3200", "tertiary-container": "#969289", "tertiary": "#615e56", "error": "#ba1a1a", "inverse-surface": "#333029", "secondary": "#5c614d", "on-secondary": "#ffffff", "surface-container-lowest": "#ffffff" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "gutter-mobile": "0.75rem", "space-xxl": "3rem", "space-sm": "0.5rem", "space-md": "1rem", "gutter": "1.25rem", "margin": "2rem", "space-lg": "1.5rem", "space-xl": "2.25rem", "margin-mobile": "1rem", "space-xs": "0.25rem", "space-xxs": "0.125rem" }, "fontFamily": { "display-lg-mobile": [ "Bricolage Grotesque" ], "headline-lg": [ "Bricolage Grotesque" ], "body-sm": [ "IBM Plex Sans" ], "telemetry-md": [ "JetBrains Mono" ], "telemetry-lg": [ "JetBrains Mono" ], "headline-sm": [ "Bricolage Grotesque" ], "display-lg": [ "Bricolage Grotesque" ], "headline-md": [ "Bricolage Grotesque" ], "body-md": [ "IBM Plex Sans" ], "label-caps": [ "JetBrains Mono" ], "body-lg": [ "IBM Plex Sans" ], "label-micro": [ "JetBrains Mono" ] }, "fontSize": { "display-lg-mobile": [ "32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "800" } ], "headline-lg": [ "28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "700" } ], "body-sm": [ "12px", { "lineHeight": "18px", "fontWeight": "400" } ], "telemetry-md": [ "16px", { "lineHeight": "22px", "letterSpacing": "0.04em", "fontWeight": "600" } ], "telemetry-lg": [ "24px", { "lineHeight": "30px", "letterSpacing": "0.02em", "fontWeight": "700" } ], "headline-sm": [ "18px", { "lineHeight": "24px", "fontWeight": "600" } ], "display-lg": [ "44px", { "lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "800" } ], "headline-md": [ "22px", { "lineHeight": "28px", "fontWeight": "700" } ], "body-md": [ "14px", { "lineHeight": "20px", "fontWeight": "400" } ], "label-caps": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.10em", "fontWeight": "600" } ], "body-lg": [ "16px", { "lineHeight": "24px", "fontWeight": "500" } ], "label-micro": [ "9px", { "lineHeight": "12px", "letterSpacing": "0.12em", "fontWeight": "600" } ] } } } }</script></head><body class="bg-[#EFEBE3] font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-[72px] bg-[#F7F4EE] border-r-[1.5px] border-[#17150F] z-50 flex flex-col items-center py-space-sm select-none"><div class="w-12 h-12 flex items-center justify-center border-[1.5px] border-[#17150F] bg-surface-container mb-space-md shadow-[2px_2px_0px_#17150F]"><img alt="Instrument System Badge" class="w-9 h-9 object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1VUTQ4yGab4Pi5Vgp15-oF3jBk0ReZ43mqCk9wsFnFB6Qu4q6N1jRzEA5nJWBVXEMd8bdEIgSCoTfUxp4HbSSU4zDFpJXelxK6FPAsro3ZYJbbEhRQNFjaWtbR2hBbqVsHiV3FI-KfLyMDo1gkrHrRvWLmcpcEMWqu6aR63khdl2kh2b4uaQizqEmCb3NAcOVSPCDZQO0jC_PuOHfRsoasIKxrbD0ke_v__Qo8sWkg6SVMmVwD15Wjx"/></div><nav class="flex-1 flex flex-col gap-space-sm w-full px-space-xs" data-active-classes="bg-primary-container text-on-primary-container shadow-[2px_2px_0px_#17150F]"><a aria-current="page" class="w-full aspect-square border-[1.5px] border-[#17150F] flex items-center justify-center transition-none bg-primary-container text-on-primary-container shadow-[2px_2px_0px_#17150F]" data-path="dashboard" href="#" title="Instrumentation Dashboard"><span class="material-symbols-outlined text-[20px]">speed</span></a><a class="w-full aspect-square border-[1.5px] border-[#17150F] bg-surface-container-low text-on-surface hover:bg-primary-container hover:text-on-primary-container flex items-center justify-center transition-none" data-path="telemetry-grid" href="#" title="Telemetry Matrix"><span class="material-symbols-outlined text-[20px]">grid_view</span></a><a class="w-full aspect-square border-[1.5px] border-[#17150F] bg-surface-container-low text-on-surface hover:bg-primary-container hover:text-on-primary-container flex items-center justify-center transition-none" data-path="calibrations" href="#" title="Calibrations &amp; Trimmers"><span class="material-symbols-outlined text-[20px]">tune</span></a><a class="w-full aspect-square border-[1.5px] border-[#17150F] bg-surface-container-low text-on-surface hover:bg-primary-container hover:text-on-primary-container flex items-center justify-center transition-none" data-path="event-log" href="#" title="System Event Log"><span class="material-symbols-outlined text-[20px]">receipt_long</span></a><a class="w-full aspect-square border-[1.5px] border-[#17150F] bg-surface-container-low text-on-surface hover:bg-primary-container hover:text-on-primary-container flex items-center justify-center transition-none" data-path="system-power" href="#" title="Power &amp; Core Systems"><span class="material-symbols-outlined text-[20px]">power_settings_new</span></a></nav><div class="w-full px-space-xs pt-space-xs border-t-[1.5px] border-[#17150F] flex flex-col items-center gap-space-xs"><div class="font-label-micro text-label-micro text-tertiary text-center uppercase tracking-wider">RACK<br/>B-04</div><div class="w-2.5 h-2.5 border-[1.5px] border-[#17150F] bg-secondary-container"></div></div></aside><div class="pl-[72px]"><header class="fixed top-0 left-[72px] right-0 h-14 bg-[#F7F4EE] border-b-[1.5px] border-[#17150F] z-40 flex items-center justify-between px-gutter select-none"><div class="flex items-center gap-space-md"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight uppercase">AERO-GRID // INSTRUMENT CONSOLE V.04</span><div class="flex items-center gap-space-xs px-space-sm py-0.5 border-[1.5px] border-[#17150F] bg-surface-container"><span class="w-2 h-2 bg-secondary border border-[#17150F]"></span><span class="font-label-caps text-label-caps text-on-surface uppercase">ONLINE 100% NOMINAL</span></div></div><div class="flex items-center gap-space-md"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-2 text-[16px] text-tertiary pointer-events-none">search</span><input class="h-8 pl-7 pr-3 bg-[#EFEBE3] border-[1.5px] border-[#17150F] font-label-caps text-label-caps text-on-surface placeholder:text-tertiary focus:outline-none focus:bg-surface-container-lowest w-64 shadow-[inset_1px_1px_0px_#17150F]" placeholder="SCAN TELEMETRY / PARAMETER [CMD+K]" readonly="" type="text"/></div><div class="flex border-[1.5px] border-[#17150F] bg-surface-container-highest"><button class="h-8 px-space-sm font-label-caps text-label-caps uppercase bg-primary-container text-on-primary-container border-r-[1.5px] border-[#17150F]">Day</button><button class="h-8 px-space-sm font-label-caps text-label-caps uppercase text-on-surface hover:bg-surface-container border-r-[1.5px] border-[#17150F]">Week</button><button class="h-8 px-space-sm font-label-caps text-label-caps uppercase text-on-surface hover:bg-surface-container border-r-[1.5px] border-[#17150F]">Month</button><button class="h-8 px-space-sm font-label-caps text-label-caps uppercase text-on-surface hover:bg-surface-container">Year</button></div><div class="flex items-center gap-space-sm pl-space-sm border-l-[1.5px] border-[#17150F]"><div class="flex items-center gap-space-xs h-8 px-space-sm border-[1.5px] border-[#17150F] bg-[#EFEBE3] shadow-[2px_2px_0px_#17150F]"><span class="w-2 h-2 bg-primary-container border border-[#17150F]"></span><span class="font-telemetry-md text-label-caps text-on-surface font-bold">ST-09</span></div><img alt="Profile" class="w-8 h-8 rounded-none border-[1.5px] border-[#17150F] object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1VUTQ4yGab4Pi5Vgp15-oF3jBk0ReZ43mqCk9wsFnFB6Qu4q6N1jRzEA5nJWBVXEMd8bdEIgSCoTfUxp4HbSSU4zDFpJXelxK6FPAsro3ZYJbbEhRQNFjaWtbR2hBbqVsHiV3FI-KfLyMDo1gkrHrRvWLmcpcEMWqu6aR63khdl2kh2b4uaQizqEmCb3NAcOVSPCDZQO0jC_PuOHfRsoasIKxrbD0ke_v__Qo8sWkg6SVMmVwD15Wjx"/></div></div></header><main class="relative pt-14 w-full px-gutter min-h-screen bg-[#EFEBE3]"><div class="flex flex-col w-full gap-6 pb-12">
+<!-- TOP STATUS BANNER (TACTILE CHASSIS STRIP) -->
+<div class="w-full bg-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] px-4 py-2.5 flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="w-2.5 h-2.5 bg-[#FF5A1F] border border-[#17150F]"></div>
+<span class="font-headline-sm text-headline-sm uppercase tracking-tight text-[#17150F]">ATMOSPHERIC FACILITY // TUNNEL BAY-3</span>
+<span class="font-label-caps text-label-caps bg-[#E0E5CC] text-[#17150F] border border-[#17150F] px-1.5 py-0.5">REYNOLDS NO: 4.82 × 10⁶</span>
+<span class="font-label-caps text-label-caps bg-[#F7F4EE] text-[#615E56] border border-[#17150F] px-1.5 py-0.5">P_ATM: 101.32 kPa</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="font-label-micro text-label-micro text-[#615E56] uppercase tracking-wider">CHAMBER TEMP:</span>
+<span class="font-telemetry-md text-label-caps text-[#17150F] font-bold">294.15 K</span>
+</div>
+<div class="h-4 w-[1.5px] bg-[#17150F]"></div>
+<div class="flex items-center gap-1.5">
+<span class="font-label-micro text-label-micro text-[#615E56] uppercase tracking-wider">FAN ARRAY:</span>
+<span class="font-telemetry-md text-label-caps text-[#FF5A1F] font-bold">RUNNING 4,200 RPM</span>
+</div>
+<div class="h-4 w-[1.5px] bg-[#17150F]"></div>
+<span class="font-label-caps text-label-caps text-[#17150F] tracking-widest font-bold">SYS_CLK: 14:05:22.409 UTC</span>
+</div>
+</div>
+<!-- ROW 1: FOUR KPI INSTRUMENT TILES (12-column grid: 4 cols) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Tile 1 -->
+<div class="bg-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] p-4 flex flex-col justify-between hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#17150F] transition-none">
+<div class="flex justify-between items-start mb-2">
+<div>
+<div class="font-label-caps text-label-caps text-[#615E56] uppercase tracking-wider font-semibold">PRESSURE CORE</div>
+<div class="font-headline-sm text-headline-sm uppercase text-[#17150F] font-bold">STATIC PRESSURE</div>
+</div>
+<span class="font-label-micro text-label-micro text-[#17150F] border border-[#17150F] bg-[#EFEBE3] px-1 py-0.5">BARO-01</span>
+</div>
+<div class="my-3 flex items-baseline gap-1.5">
+<span class="font-telemetry-lg text-[34px] leading-none text-[#17150F] font-bold tracking-tight">101.325</span>
+<span class="font-telemetry-md text-label-caps text-[#615E56] font-semibold">kPa</span>
+</div>
+<div class="flex items-center justify-between pt-2 border-t-[1.5px] border-[#17150F]">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 bg-[#5C614D] border border-[#17150F]"></div>
+<span class="font-label-caps text-label-caps text-[#5C614D] font-bold">+0.42 kPa (STABLE)</span>
+</div>
+<!-- Sparkline: 1.5px stroke with signal orange dot -->
+<svg class="w-20 h-6 overflow-visible" fill="none" viewbox="0 0 80 24">
+<polyline points="0,18 15,16 30,19 45,12 60,13 78,8" stroke="#17150F" stroke-linecap="square" stroke-width="1.5"></polyline>
+<circle cx="78" cy="8" fill="#FF5A1F" r="2.5" stroke="#17150F" stroke-width="1"></circle>
+</svg>
+</div>
+</div>
+<!-- Tile 2 (HIGHLIGHT TILE) -->
+<div class="bg-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] p-4 flex flex-col justify-between hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#17150F] transition-none">
+<div class="flex justify-between items-start mb-2">
+<div>
+<div class="font-label-caps text-label-caps text-[#615E56] uppercase tracking-wider font-semibold">SUPERSONIC DUCT</div>
+<div class="font-headline-sm text-headline-sm uppercase text-[#17150F] font-bold">INTAKE VELOCITY</div>
+</div>
+<span class="font-label-micro text-label-micro text-[#17150F] border border-[#17150F] bg-[#FF5A1F] text-white px-1 py-0.5 font-bold">VEL-T3</span>
+</div>
+<div class="my-3 flex items-baseline gap-1.5">
+<span class="font-telemetry-lg text-[34px] leading-none text-[#FF5A1F] font-bold tracking-tight">428.6</span>
+<span class="font-telemetry-md text-label-caps text-[#17150F] font-bold">m/s</span>
+</div>
+<div class="flex items-center justify-between pt-2 border-t-[1.5px] border-[#17150F]">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 bg-[#FF5A1F] border border-[#17150F]"></div>
+<span class="font-label-caps text-label-caps text-[#FF5A1F] font-bold">+14.8 m/s (MACH 1.25)</span>
+</div>
+<!-- Acceleration curve sparkline -->
+<svg class="w-20 h-6 overflow-visible" fill="none" viewbox="0 0 80 24">
+<path d="M0,20 Q35,18 55,10 T78,4" fill="none" stroke="#FF5A1F" stroke-width="1.5"></path>
+<circle cx="78" cy="4" fill="#17150F" r="2.5"></circle>
+</svg>
+</div>
+</div>
+<!-- Tile 3 -->
+<div class="bg-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] p-4 flex flex-col justify-between hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#17150F] transition-none">
+<div class="flex justify-between items-start mb-2">
+<div>
+<div class="font-label-caps text-label-caps text-[#615E56] uppercase tracking-wider font-semibold">SKIN FRICTION</div>
+<div class="font-headline-sm text-headline-sm uppercase text-[#17150F] font-bold">HEAT FLUX DENSITY</div>
+</div>
+<span class="font-label-micro text-label-micro text-[#17150F] border border-[#17150F] bg-[#EFEBE3] px-1 py-0.5">THRM-X</span>
+</div>
+<div class="my-3 flex items-baseline gap-1.5">
+<span class="font-telemetry-lg text-[34px] leading-none text-[#17150F] font-bold tracking-tight">842.1</span>
+<span class="font-telemetry-md text-label-caps text-[#615E56] font-semibold">W/m²</span>
+</div>
+<div class="flex items-center justify-between pt-2 border-t-[1.5px] border-[#17150F]">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 bg-[#BA1A1A] border border-[#17150F]"></div>
+<span class="font-label-caps text-label-caps text-[#BA1A1A] font-bold">-2.1% CRITICAL BAND</span>
+</div>
+<!-- Step sparkline -->
+<svg class="w-20 h-6 overflow-visible" fill="none" viewbox="0 0 80 24">
+<path d="M0,18 L20,18 L20,14 L40,14 L40,8 L60,8 L60,11 L78,11" fill="none" stroke="#17150F" stroke-width="1.5"></path>
+<circle cx="78" cy="11" fill="#FF5A1F" r="2.5" stroke="#17150F" stroke-width="1"></circle>
+</svg>
+</div>
+</div>
+<!-- Tile 4 -->
+<div class="bg-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] p-4 flex flex-col justify-between hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#17150F] transition-none">
+<div class="flex justify-between items-start mb-2">
+<div>
+<div class="font-label-caps text-label-caps text-[#615E56] uppercase tracking-wider font-semibold">AEROTHERMAL ACOUSTIC</div>
+<div class="font-headline-sm text-headline-sm uppercase text-[#17150F] font-bold">GRID VIBRATION</div>
+</div>
+<span class="font-label-micro text-label-micro text-[#17150F] border border-[#17150F] bg-[#EFEBE3] px-1 py-0.5">HAR-9</span>
+</div>
+<div class="my-3 flex items-baseline gap-1.5">
+<span class="font-telemetry-lg text-[34px] leading-none text-[#17150F] font-bold tracking-tight">18.4</span>
+<span class="font-telemetry-md text-label-caps text-[#615E56] font-semibold">Hz</span>
+</div>
+<div class="flex items-center justify-between pt-2 border-t-[1.5px] border-[#17150F]">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 bg-[#5C614D] border border-[#17150F]"></div>
+<span class="font-label-caps text-label-caps text-[#5C614D] font-bold">0.00 NOMINAL DEVIATION</span>
+</div>
+<!-- Oscillatory sparkline -->
+<svg class="w-20 h-6 overflow-visible" fill="none" viewbox="0 0 80 24">
+<path d="M0,12 Q10,2 20,12 T40,12 T60,12 T78,12" fill="none" stroke="#17150F" stroke-width="1.5"></path>
+<circle cx="78" cy="12" fill="#FF5A1F" r="2.5" stroke="#17150F" stroke-width="1"></circle>
+</svg>
+</div>
+</div>
+</div>
+<!-- ROW 2: MAIN CHART & HARDWARE CONTROLS PANEL (8 cols + 4 cols) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- MAIN CHART PANEL (8 cols) -->
+<div class="lg:col-span-8 bg-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] flex flex-col">
+<!-- Chart Header Ribbon -->
+<div class="border-b-[1.5px] border-[#17150F] px-4 py-3 flex flex-wrap items-center justify-between bg-[#EFEBE3] gap-2">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 bg-[#17150F] border border-[#17150F]"></div>
+<div>
+<div class="font-headline-sm text-headline-sm uppercase text-[#17150F] font-bold leading-tight">FLOW REGIME &amp; BOUNDARY LAYER SPECTRUM</div>
+<div class="font-label-micro text-label-micro text-[#615E56] tracking-wider uppercase font-semibold">DIFFERENTIAL TRANSDUCER ARRAY // MODEL ST-409</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="flex border-[1.5px] border-[#17150F] bg-[#F7F4EE]">
+<button class="px-2 py-0.5 font-label-caps text-label-caps text-[#17150F] hover:bg-[#E0E5CC] border-r-[1.5px] border-[#17150F]">0.1s</button>
+<button class="px-2 py-0.5 font-label-caps text-label-caps bg-[#17150F] text-[#F7F4EE] border-r-[1.5px] border-[#17150F] font-bold">1s</button>
+<button class="px-2 py-0.5 font-label-caps text-label-caps text-[#17150F] hover:bg-[#E0E5CC] border-r-[1.5px] border-[#17150F]">10s</button>
+<button class="px-2 py-0.5 font-label-caps text-label-caps text-[#17150F] hover:bg-[#E0E5CC]">60s</button>
+</div>
+<span class="font-label-caps text-label-caps bg-[#F7F4EE] border-[1.5px] border-[#17150F] px-2 py-0.5 text-[#17150F] font-bold">STREAM // A-789</span>
+</div>
+</div>
+<!-- Main Chart SVG Body -->
+<div class="p-4 bg-[#F7F4EE] relative">
+<svg class="w-full h-80 overflow-visible select-none" viewbox="0 0 760 300">
+<defs>
+<!-- Background cross-hatch pattern for physical drafting feel -->
+<pattern height="25" id="grid-pattern" patternunits="userSpaceOnUse" width="38">
+<path d="M 38 0 L 0 0 0 25" fill="none" stroke="#E2DDD2" stroke-width="1"></path>
+</pattern>
+</defs>
+<!-- Chart Area Background Grid -->
+<rect fill="url(#grid-pattern)" height="230" stroke="#17150F" stroke-width="1.5" width="670" x="60" y="20"></rect>
+<!-- Y-Axis Tick Labels & Hash Lines -->
+<!-- 500 kPa -->
+<line stroke="#17150F" stroke-width="1.5" x1="54" x2="60" y1="20" y2="20"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="end" x="50" y="24">500 kPa</text>
+<!-- 375 kPa -->
+<line stroke="#17150F" stroke-width="1.5" x1="54" x2="60" y1="77.5" y2="77.5"></line>
+<line stroke="#D1CCC0" stroke-dasharray="2 2" stroke-width="1" x1="60" x2="730" y1="77.5" y2="77.5"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="end" x="50" y="81">375 kPa</text>
+<!-- 250 kPa -->
+<line stroke="#17150F" stroke-width="1.5" x1="54" x2="60" y1="135" y2="135"></line>
+<line stroke="#D1CCC0" stroke-dasharray="2 2" stroke-width="1" x1="60" x2="730" y1="135" y2="135"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="end" x="50" y="139">250 kPa</text>
+<!-- 125 kPa -->
+<line stroke="#17150F" stroke-width="1.5" x1="54" x2="60" y1="192.5" y2="192.5"></line>
+<line stroke="#D1CCC0" stroke-dasharray="2 2" stroke-width="1" x1="60" x2="730" y1="192.5" y2="192.5"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="end" x="50" y="196">125 kPa</text>
+<!-- 0 kPa -->
+<line stroke="#17150F" stroke-width="1.5" x1="54" x2="60" y1="250" y2="250"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="end" x="50" y="253">0 kPa</text>
+<!-- Reference Threshold Line: Olive dashed line -->
+<line stroke="#5C614D" stroke-dasharray="6 4" stroke-width="2" x1="60" x2="730" y1="100" y2="100"></line>
+<rect fill="#E0E5CC" height="18" stroke="#17150F" stroke-width="1" width="115" x="610" y="90"></rect>
+<text fill="#17150F" font-family="JetBrains Mono" font-size="9" font-weight="700" text-anchor="middle" x="667" y="102">MACH CRIT THRESHOLD</text>
+<!-- Series 2: Solid Ink Black (Drag Index Cd) -->
+<polyline fill="none" points="
+            60,195 90,198 130,190 170,185 210,188 250,175 
+            290,178 330,165 370,168 410,158 450,162 490,152 
+            530,154 570,145 610,147 650,138 690,140 730,132" stroke="#17150F" stroke-linejoin="bevel" stroke-width="2"></polyline>
+<!-- Series 1: Solid Signal Orange #FF5A1F (Active Lift Vector α) -->
+<polyline fill="none" points="
+            60,180 90,175 130,160 170,152 210,158 250,135 
+            290,140 330,110 370,118 410,95 450,102 490,75 
+            530,82 570,62 610,68 650,54 690,58 730,42" stroke="#FF5A1F" stroke-linejoin="bevel" stroke-width="2.5"></polyline>
+<!-- Point Indicators on Signal Orange line -->
+<circle cx="490" cy="75" fill="#FF5A1F" r="3.5" stroke="#17150F" stroke-width="1.5"></circle>
+<circle cx="650" cy="54" fill="#FF5A1F" r="3.5" stroke="#17150F" stroke-width="1.5"></circle>
+<circle cx="730" cy="42" fill="#FF5A1F" r="4.5" stroke="#17150F" stroke-width="2"></circle>
+<!-- Value Tag Callout at End Point -->
+<rect fill="#17150F" height="16" stroke="#17150F" stroke-width="1" width="58" x="670" y="24"></rect>
+<text fill="#FFFFFF" font-family="JetBrains Mono" font-size="9" font-weight="700" text-anchor="middle" x="699" y="35">468.2 kPa</text>
+<!-- X-Axis Timestamps & Sub-ruler Ticks -->
+<line stroke="#17150F" stroke-width="1.5" x1="60" x2="60" y1="250" y2="256"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="middle" x="60" y="268">14:00:00</text>
+<line stroke="#17150F" stroke-width="1.5" x1="194" x2="194" y1="250" y2="256"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="middle" x="194" y="268">14:01:15</text>
+<line stroke="#17150F" stroke-width="1.5" x1="328" x2="328" y1="250" y2="256"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="middle" x="328" y="268">14:02:30</text>
+<line stroke="#17150F" stroke-width="1.5" x1="462" x2="462" y1="250" y2="256"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="middle" x="462" y="268">14:03:45</text>
+<line stroke="#17150F" stroke-width="1.5" x1="596" x2="596" y1="250" y2="256"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="middle" x="596" y="268">14:05:00</text>
+<line stroke="#17150F" stroke-width="1.5" x1="730" x2="730" y1="250" y2="256"></line>
+<text fill="#615E56" font-family="JetBrains Mono" font-size="10" font-weight="600" text-anchor="end" x="730" y="268">14:06:15</text>
+</svg>
+<!-- Chart Legend Bar -->
+<div class="mt-2 flex flex-wrap items-center justify-between border-t-[1.5px] border-[#17150F] pt-2 px-1">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 bg-[#FF5A1F] border border-[#17150F]"></span>
+<span class="font-label-caps text-label-caps text-[#17150F] font-bold">LIFT VECTOR α (CH-01)</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-4 h-[2px] bg-[#17150F]"></span>
+<span class="font-label-caps text-label-caps text-[#17150F] font-bold">DRAG INDEX C_d</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-4 h-[2px] bg-[#5C614D] border-t border-dashed border-[#5C614D]"></span>
+<span class="font-label-caps text-label-caps text-[#5C614D] font-bold">MACH THRESHOLD (1.20)</span>
+</div>
+</div>
+<div class="font-label-caps text-label-caps text-[#615E56]">
+            SAMPLES: 14,800/sec • BUFFER: 99.4% • LATENCY: 1.2ms
+          </div>
+</div>
+</div>
+</div>
+<!-- HARDWARE CONTROLS PANEL (4 cols) -->
+<div class="lg:col-span-4 bg-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] flex flex-col">
+<!-- Title Ribbon -->
+<div class="border-b-[1.5px] border-[#17150F] px-4 py-3 bg-[#EFEBE3] flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-[#17150F]">tune</span>
+<span class="font-headline-sm text-headline-sm uppercase text-[#17150F] font-bold">ACTUATOR BUS &amp; CONTROLS</span>
+</div>
+<span class="font-label-micro text-label-micro bg-[#17150F] text-[#F7F4EE] px-1.5 py-0.5 font-bold">MANUAL</span>
+</div>
+<div class="p-4 flex flex-col gap-5">
+<!-- Tactile Slider 1: INLET THROTTLE -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-[#17150F] font-bold uppercase">TUNNEL FAN THROTTLE</span>
+<span class="font-telemetry-md text-label-caps text-[#17150F] bg-[#EFEBE3] border-[1.5px] border-[#17150F] px-2 py-0.5 font-bold">[ 70% ]</span>
+</div>
+<!-- Notched Physical Track -->
+<div class="relative w-full h-7 bg-[#E6E1D6] border-[1.5px] border-[#17150F] shadow-[inset_2px_2px_0px_#17150F] flex items-center px-1">
+<!-- Notch marks every 10% -->
+<div class="absolute inset-0 flex justify-between px-2 items-center pointer-events-none opacity-40">
+<span class="w-[1.5px] h-3 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-3 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-3 bg-[#17150F]"></span>
+</div>
+<!-- Slider Thumb (at 70%) -->
+<div class="absolute left-[70%] -translate-x-1/2 w-8 h-8 bg-[#FF5A1F] border-[1.5px] border-[#17150F] shadow-[2px_2px_0px_#17150F] cursor-ew-resize flex items-center justify-center gap-0.5 active:translate-y-[1px]">
+<div class="w-[1.5px] h-4 bg-[#17150F]"></div>
+<div class="w-[1.5px] h-4 bg-[#17150F]"></div>
+<div class="w-[1.5px] h-4 bg-[#17150F]"></div>
+</div>
+</div>
+</div>
+<!-- Tactile Slider 2: BOUNDARY AIR INJECTOR -->
+<div class="flex flex-col gap-1.5">
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-[#17150F] font-bold uppercase">BOUNDARY AIR INJECTOR</span>
+<span class="font-telemetry-md text-label-caps text-[#17150F] bg-[#EFEBE3] border-[1.5px] border-[#17150F] px-2 py-0.5 font-bold">[ 40% ]</span>
+</div>
+<div class="relative w-full h-7 bg-[#E6E1D6] border-[1.5px] border-[#17150F] shadow-[inset_2px_2px_0px_#17150F] flex items-center px-1">
+<div class="absolute inset-0 flex justify-between px-2 items-center pointer-events-none opacity-40">
+<span class="w-[1.5px] h-3 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-3 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-2 bg-[#17150F]"></span>
+<span class="w-[1.5px] h-3 bg-[#17150F]"></span>
+</div>
+<!-- Slider Thumb (at 40%) -->
+<div class="absolute left-[40%] -translate-x-1/2 w-8 h-8 bg-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[2px_2px_0px_#17150F] cursor-ew-resize flex items-center justify-center gap-0.5 active:translate-y-[1px]">
+<div class="w-[1.5px] h-4 bg-[#17150F]"></div>
+<div class="w-[1.5px] h-4 bg-[#17150F]"></div>
+<div class="w-[1.5px] h-4 bg-[#17150F]"></div>
+</div>
+</div>
+</div>
+<div class="h-[1.5px] bg-[#17150F] w-full"></div>
+<!-- Potentiometer Dial & Stepper Row -->
+<div class="grid grid-cols-2 gap-4 items-center">
+<!-- Circular Potentiometer Dial -->
+<div class="flex flex-col items-center border-[1.5px] border-[#17150F] bg-[#EFEBE3] p-2.5">
+<span class="font-label-caps text-label-caps text-[#615E56] font-bold mb-2">DYNAMIC GAIN</span>
+<div class="relative w-16 h-16 rounded-full border-[1.5px] border-[#17150F] bg-[#F7F4EE] shadow-[2px_2px_0px_#17150F] flex items-center justify-center">
+<!-- Radial Ticks SVG -->
+<svg class="absolute inset-0 w-full h-full p-0.5" viewbox="0 0 60 60">
+<!-- 12 radial ticks -->
+<line stroke="#17150F" stroke-width="1.5" x1="30" x2="30" y1="2" y2="6"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="44" x2="42" y1="6" y2="10"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="54" x2="50" y1="16" y2="18"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="58" x2="54" y1="30" y2="30"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="54" x2="50" y1="44" y2="42"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="44" x2="42" y1="54" y2="50"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="30" x2="30" y1="58" y2="54"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="16" x2="18" y1="54" y2="50"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="6" x2="10" y1="44" y2="42"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="2" x2="6" y1="30" y2="30"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="6" x2="10" y1="16" y2="18"></line>
+<line stroke="#17150F" stroke-width="1.5" x1="16" x2="18" y1="6" y2="10"></line>
+</svg>
+<!-- Rotated Dial Knob Indicator (at 240 deg) -->
+<div class="w-10 h-10 rounded-full border-[1.5px] border-[#17150F] bg-[#EFEBE3] relative flex items-center justify-center transform rotate-[240deg]">
+<div class="absolute top-0 w-1 h-3.5 bg-[#FF5A1F] border-x border-t border-[#17150F]"></div>
+</div>
+</div>
+<span class="font-telemetry-md text-label-caps text-[#17150F] font-bold mt-2">GAIN: 4.8x</span>
+</div>
+<!-- Stepper & Chevrons -->
+<div class="flex flex-col gap-2">
+<span class="font-label-caps text-label-caps text-[#17150F] font-bold uppercase">NOZZLE TRIM STAGE</span>
+<div class="flex items-center border-[1.5px] border-[#17150F] bg-[#F7F4EE] shadow-[2px_2px_0px_#17150F]">
+<button class="w-8 h-8 flex items-center justify-center border-r-[1.5px] border-[#17150F] bg-[#EFEBE3] hover:bg-[#FF5A1F] hover:text-white active:bg-[#17150F] font-telemetry-md font-bold text-base transition-none">-</button>
+<div class="flex-1 text-center font-telemetry-lg text-telemetry-md font-bold text-[#17150F]">12</div>
+<button class="w-8 h-8 flex items-center justify-center border-l-[1.5px] border-[#17150F] bg-[#EFEBE3] hover:bg-[#FF5A1F] hover:text-white active:bg-[#17150F] font-telemetry-md font-bold text-base transition-none">+</button>
+</div>
+<div class="flex items-center justify-between text-[#615E56] font-label-micro">
+<span>STEP: 1.0</span>
+<span>MAX: 24</span>
+</div>
+</div>
+</div>
+<!-- Tactile Rocker Toggles -->
+<div class="grid grid-cols-2 gap-3 pt-1">
+<!-- Toggle 1 -->
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-micro text-[#615E56] uppercase font-bold">AUX BLEED VALVE</span>
+<div class="flex border-[1.5px] border-[#17150F] shadow-[2px_2px_0px_#17150F] select-none cursor-pointer">
+<div class="flex-1 text-center py-1 bg-[#FF5A1F] text-[#17150F] font-telemetry-md text-label-caps font-extrabold border-r-[1.5px] border-[#17150F]">ON</div>
+<div class="flex-1 text-center py-1 bg-[#E6E1D6] text-[#615E56] font-telemetry-md text-label-caps font-bold">OFF</div>
+</div>
+</div>
+<!-- Toggle 2 -->
+<div class="flex flex-col gap-1">
+<span class="font-label-caps text-label-micro text-[#615E56] uppercase font-bold">REHEAT IGNITER</span>
+<div class="flex border-[1.5px] border-[#17150F] shadow-[2px_2px_0px_#17150F] select-none cursor-pointer">
+<div class="flex-1 text-center py-1 bg-[#E6E1D6] text-[#615E56] font-telemetry-md text-label-caps font-bold border-r-[1.5px] border-[#17150F]">ON</div>
+<div class="flex-1 text-center py-1 bg-[#17150F] text-[#F7F4EE] font-telemetry-md text-label-caps font-extrabold">OFF</div>
+</div>
+</div>
+</div>
+<!-- Square Checkboxes -->
+<div class="flex flex-col gap-2 pt-1 border-t-[1.5px] border-[#17150F]">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<div class="w-4 h-4 border-[1.5px] border-[#17150F] bg-[#17150F] flex items-center justify-center">
+<div class="w-2 h-2 bg-[#FF5A1F]"></div>
+</div>
+<span class="font-label-caps text-label-caps text-[#17150F] font-bold">AUTO-PURGE CHAMBER [CH-9]</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<div class="w-4 h-4 border-[1.5px] border-[#17150F] bg-[#F7F4EE]"></div>
+<span class="font-label-caps text-label-caps text-[#615E56] font-bold">INERT GAS INJECTION (N₂)</span>
+</label>
+</div>
+<!-- Tactile Button Action Matrix (States Showcase) -->
+<div class="grid grid-cols-2 gap-2.5 pt-2 border-t-[1.5px] border-[#17150F]">
+<!-- Primary Tactile Button -->
+<button class="bg-[#17150F] text-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] py-2 px-3 font-label-caps text-label-caps uppercase font-bold tracking-wider active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-none flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[15px] text-[#FF5A1F]">play_arrow</span>
+            ENGAGE FLOW
+          </button>
+<!-- Secondary Tactile Button -->
+<button class="bg-[#F7F4EE] text-[#17150F] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] py-2 px-3 font-label-caps text-label-caps uppercase font-bold tracking-wider hover:bg-[#EFEBE3] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-none flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">restart_alt</span>
+            TARE / ZERO
+          </button>
+<!-- Destructive Warning E-STOP -->
+<button class="bg-[#BA1A1A] text-white border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] py-2 px-3 font-label-caps text-label-caps uppercase font-bold tracking-wider active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-none flex items-center justify-center gap-1.5">
+<span class="material-symbols-outlined text-[15px]">warning</span>
+            VENT [E-STOP]
+          </button>
+<!-- Disabled Button -->
+<button class="bg-[#EFEBE3] text-[#615E56] border-[1.5px] border-[#CBC6BC] py-2 px-3 font-label-caps text-label-caps uppercase font-bold tracking-wider opacity-60 cursor-not-allowed flex items-center justify-center gap-1" disabled="">
+<span class="material-symbols-outlined text-[15px]">lock</span>
+            OVERRIDE
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- ROW 3: SORTABLE DATA TABLE & ACTIVITY LOG (8 cols + 4 cols) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- Ruled Data Table (8 cols) -->
+<div class="lg:col-span-8 bg-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] flex flex-col">
+<!-- Table Header Ribbon -->
+<div class="border-b-[1.5px] border-[#17150F] px-4 py-3 bg-[#EFEBE3] flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-[#17150F]">sensors</span>
+<span class="font-headline-sm text-headline-sm uppercase text-[#17150F] font-bold">ACTIVE TRANSDUCER TELEMETRY CHANNELS</span>
+</div>
+<!-- Filter Pills (Square Industrial Style) -->
+<div class="flex border-[1.5px] border-[#17150F] bg-[#F7F4EE]">
+<button class="px-2.5 py-0.5 font-label-caps text-label-caps bg-[#17150F] text-[#F7F4EE] font-bold border-r-[1.5px] border-[#17150F]">ALL [5]</button>
+<button class="px-2.5 py-0.5 font-label-caps text-label-caps text-[#17150F] hover:bg-[#EFEBE3] border-r-[1.5px] border-[#17150F]">PRESSURE</button>
+<button class="px-2.5 py-0.5 font-label-caps text-label-caps text-[#17150F] hover:bg-[#EFEBE3] border-r-[1.5px] border-[#17150F]">TEMP</button>
+<button class="px-2.5 py-0.5 font-label-caps text-label-caps text-[#17150F] hover:bg-[#EFEBE3]">FLOW</button>
+</div>
+</div>
+<!-- Ruled Table Container -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b-[1.5px] border-[#17150F] bg-[#F4EDE3]">
+<th class="py-2.5 px-3 font-headline-sm text-label-caps text-[#17150F] font-bold uppercase tracking-wider border-r-[1.5px] border-[#17150F]">CH ID</th>
+<th class="py-2.5 px-3 font-headline-sm text-label-caps text-[#17150F] font-bold uppercase tracking-wider border-r-[1.5px] border-[#17150F]">SENSOR LOCATION</th>
+<th class="py-2.5 px-3 font-headline-sm text-label-caps text-[#17150F] font-bold uppercase tracking-wider border-r-[1.5px] border-[#17150F]">PARAMETER</th>
+<th class="py-2.5 px-3 font-headline-sm text-label-caps text-[#17150F] font-bold uppercase tracking-wider border-r-[1.5px] border-[#17150F]">READING</th>
+<th class="py-2.5 px-3 font-headline-sm text-label-caps text-[#17150F] font-bold uppercase tracking-wider border-r-[1.5px] border-[#17150F]">TOLERANCE</th>
+<th class="py-2.5 px-3 font-headline-sm text-label-caps text-[#17150F] font-bold uppercase tracking-wider border-r-[1.5px] border-[#17150F]">CALIBRATED</th>
+<th class="py-2.5 px-3 font-headline-sm text-label-caps text-[#17150F] font-bold uppercase tracking-wider">STATUS</th>
+</tr>
+</thead>
+<tbody class="divide-y-[1.5px] divide-[#17150F]">
+<!-- Row 1 -->
+<tr class="hover:bg-[#EFEBE3] transition-none">
+<td class="py-2 px-3 font-telemetry-md text-label-caps text-[#17150F] font-bold border-r-[1.5px] border-[#17150F]">CH-01</td>
+<td class="py-2 px-3 font-label-caps text-label-caps text-[#17150F] font-semibold border-r-[1.5px] border-[#17150F]">NOSE CONE PITOT</td>
+<td class="py-2 px-3 font-body-sm text-body-sm text-[#615E56] border-r-[1.5px] border-[#17150F]">Total Pressure</td>
+<td class="py-2 px-3 font-telemetry-md text-label-caps text-[#17150F] font-bold border-r-[1.5px] border-[#17150F]">104.21 kPa</td>
+<td class="py-2 px-3 font-telemetry-md text-label-micro text-[#615E56] border-r-[1.5px] border-[#17150F]">±0.05%</td>
+<td class="py-2 px-3 font-telemetry-md text-label-micro text-[#615E56] border-r-[1.5px] border-[#17150F]">2025-02-18</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1 border border-[#17150F] bg-[#E0E5CC] px-1.5 py-0.5 font-label-micro text-label-micro text-[#17150F] font-bold">
+<span class="w-1.5 h-1.5 bg-[#5C614D]"></span> NOMINAL
+                </span>
+</td>
+</tr>
+<!-- Row 2 (Active/Orange) -->
+<tr class="bg-[#FFF4EE] hover:bg-[#FFE8DC] transition-none">
+<td class="py-2 px-3 font-telemetry-md text-label-caps text-[#FF5A1F] font-bold border-r-[1.5px] border-[#17150F]">CH-02</td>
+<td class="py-2 px-3 font-label-caps text-label-caps text-[#17150F] font-semibold border-r-[1.5px] border-[#17150F]">WING ROOT VORTEX</td>
+<td class="py-2 px-3 font-body-sm text-body-sm text-[#615E56] border-r-[1.5px] border-[#17150F]">Dynamic Pressure</td>
+<td class="py-2 px-3 font-telemetry-md text-label-caps text-[#FF5A1F] font-bold border-r-[1.5px] border-[#17150F]">88.40 kPa</td>
+<td class="py-2 px-3 font-telemetry-md text-label-micro text-[#615E56] border-r-[1.5px] border-[#17150F]">±0.10%</td>
+<td class="py-2 px-3 font-telemetry-md text-label-micro text-[#615E56] border-r-[1.5px] border-[#17150F]">2025-02-14</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1 border border-[#17150F] bg-[#FF5A1F] text-white px-1.5 py-0.5 font-label-micro text-label-micro font-bold">
+<span class="w-1.5 h-1.5 bg-white"></span> ACTIVE
+                </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-[#EFEBE3] transition-none">
+<td class="py-2 px-3 font-telemetry-md text-label-caps text-[#17150F] font-bold border-r-[1.5px] border-[#17150F]">CH-03</td>
+<td class="py-2 px-3 font-label-caps text-label-caps text-[#17150F] font-semibold border-r-[1.5px] border-[#17150F]">AILERON HINGE</td>
+<td class="py-2 px-3 font-body-sm text-body-sm text-[#615E56] border-r-[1.5px] border-[#17150F]">Strain Gauge</td>
+<td class="py-2 px-3 font-telemetry-md text-label-caps text-[#17150F] font-bold border-r-[1.5px] border-[#17150F]">240.15 µε</td>
+<td class="py-2 px-3 font-telemetry-md text-label-micro text-[#615E56] border-r-[1.5px] border-[#17150F]">±0.25%</td>
+<td class="py-2 px-3 font-telemetry-md text-label-micro text-[#615E56] border-r-[1.5px] border-[#17150F]">2025-01-30</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1 border border-[#17150F] bg-[#E0E5CC] px-1.5 py-0.5 font-label-micro text-label-micro text-[#17150F] font-bold">
+<span class="w-1.5 h-1.5 bg-[#5C614D]"></span> NOMINAL
+                </span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-[#EFEBE3] transition-none">
+<td class="py-2 px-3 font-telemetry-md text-label-caps text-[#17150F] font-bold border-r-[1.5px] border-[#17150F]">CH-04</td>
+<td class="py-2 px-3 font-label-caps text-label-caps text-[#17150F] font-semibold border-r-[1.5px] border-[#17150F]">EXHAUST VENTURI</td>
+<td class="py-2 px-3 font-body-sm text-body-sm text-[#615E56] border-r-[1.5px] border-[#17150F]">Mass Flow Rate</td>
+<td class="py-2 px-3 font-telemetry-md text-label-caps text-[#17150F] font-bold border-r-[1.5px] border-[#17150F]">12.84 kg/s</td>
+<td class="py-2 px-3 font-telemetry-md text-label-micro text-[#615E56] border-r-[1.5px] border-[#17150F]">±0.02%</td>
+<td class="py-2 px-3 font-telemetry-md text-label-micro text-[#615E56] border-r-[1.5px] border-[#17150F]">2025-02-19</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1 border border-[#17150F] bg-[#EFEBE3] px-1.5 py-0.5 font-label-micro text-label-micro text-[#17150F] font-bold">
+<span class="w-1.5 h-1.5 bg-[#17150F]"></span> MONITOR
+                </span>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="hover:bg-[#EFEBE3] transition-none">
+<td class="py-2 px-3 font-telemetry-md text-label-caps text-[#17150F] font-bold border-r-[1.5px] border-[#17150F]">CH-05</td>
+<td class="py-2 px-3 font-label-caps text-label-caps text-[#17150F] font-semibold border-r-[1.5px] border-[#17150F]">NACELLE COWLING</td>
+<td class="py-2 px-3 font-body-sm text-body-sm text-[#615E56] border-r-[1.5px] border-[#17150F]">Temp Gradient</td>
+<td class="py-2 px-3 font-telemetry-md text-label-caps text-[#17150F] font-bold border-r-[1.5px] border-[#17150F]">312.4 K</td>
+<td class="py-2 px-3 font-telemetry-md text-label-micro text-[#615E56] border-r-[1.5px] border-[#17150F]">±0.50%</td>
+<td class="py-2 px-3 font-telemetry-md text-label-micro text-[#615E56] border-r-[1.5px] border-[#17150F]">2025-02-10</td>
+<td class="py-2 px-3">
+<span class="inline-flex items-center gap-1 border border-[#17150F] bg-[#E0E5CC] px-1.5 py-0.5 font-label-micro text-label-micro text-[#17150F] font-bold">
+<span class="w-1.5 h-1.5 bg-[#5C614D]"></span> NOMINAL
+                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer Status -->
+<div class="p-2.5 bg-[#EFEBE3] border-t-[1.5px] border-[#17150F] flex items-center justify-between text-[#615E56] font-label-micro">
+<span>SHOWING 5 OF 64 TRANSDUCERS ENROLLED</span>
+<span class="uppercase">DAU RACK CALIBRATION PASSED // ISO-9001 SEC-B</span>
+</div>
+</div>
+<!-- Monospace Activity Log (4 cols) -->
+<div class="lg:col-span-4 bg-[#F7F4EE] border-[1.5px] border-[#17150F] shadow-[4px_4px_0px_#17150F] flex flex-col">
+<!-- Terminal Header -->
+<div class="border-b-[1.5px] border-[#17150F] px-4 py-3 bg-[#EFEBE3] flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-[#17150F]">terminal</span>
+<span class="font-headline-sm text-headline-sm uppercase text-[#17150F] font-bold">SYS_LOG // TTY-01</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 bg-[#FF5A1F]"></span>
+<span class="font-telemetry-md text-label-caps text-[#17150F] font-bold animate-pulse">REC</span>
+</div>
+</div>
+<!-- Feed Box with Recessed Inset Border -->
+<div class="p-3 bg-[#E6E1D6] shadow-[inset_2px_2px_0px_#17150F] flex flex-col gap-2 font-telemetry-md text-label-caps text-[#17150F] min-h-[220px]">
+<div class="flex gap-2">
+<span class="text-[#615E56]">14:04:12.802</span>
+<span class="font-bold text-[#5C614D]">[SYS]</span>
+<span>Barometric tare calibration confirmed</span>
+</div>
+<div class="flex gap-2 bg-[#FFEFEA] px-1 border-l-2 border-[#FF5A1F]">
+<span class="text-[#615E56]">14:04:09.114</span>
+<span class="font-bold text-[#BA1A1A]">[WARN]</span>
+<span class="font-semibold">Pitot tube 02 delta +1.4% above mean</span>
+</div>
+<div class="flex gap-2">
+<span class="text-[#615E56]">14:03:55.430</span>
+<span class="font-bold text-[#17150F]">[VALV]</span>
+<span>Valve V-102 set to 70% open position</span>
+</div>
+<div class="flex gap-2">
+<span class="text-[#615E56]">14:03:22.001</span>
+<span class="font-bold text-[#5C614D]">[PWR]</span>
+<span>High-frequency generator locked at 400Hz</span>
+</div>
+<div class="flex gap-2">
+<span class="text-[#615E56]">14:02:11.980</span>
+<span class="font-bold text-[#17150F]">[AUTH]</span>
+<span>Operator ST-09 session authenticated</span>
+</div>
+<div class="flex gap-2 text-[#615E56]">
+<span>14:01:05.100</span>
+<span class="font-bold">[INIT]</span>
+<span>Array bus ST-409 self-check: OK</span>
+</div>
+</div>
+<!-- Terminal Command Input Bar -->
+<div class="p-2 border-t-[1.5px] border-[#17150F] bg-[#F7F4EE] flex gap-2">
+<div class="flex-1 flex items-center bg-[#EFEBE3] border-[1.5px] border-[#17150F] px-2 py-1 shadow-[inset_1px_1px_0px_#17150F]">
+<span class="font-telemetry-md text-label-caps text-[#FF5A1F] font-bold mr-1">$</span>
+<input class="w-full bg-transparent font-telemetry-md text-label-caps text-[#17150F] font-bold focus:outline-none uppercase" readonly="" type="text" value="RUN DIAGNOSTIC --FULL"/>
+</div>
+<button class="bg-[#17150F] text-[#F7F4EE] border-[1.5px] border-[#17150F] px-3 font-label-caps text-label-caps font-bold hover:bg-[#FF5A1F] active:translate-x-[2px] active:translate-y-[2px] transition-none">
+          EXEC
+        </button>
+</div>
+</div>
+</div>
+<!-- FOOTER DIAGNOSTIC BAR -->
+<div class="w-full border-[1.5px] border-[#17150F] bg-[#EFEBE3] px-4 py-2 flex flex-wrap items-center justify-between text-[#615E56] font-label-micro">
+<div class="flex items-center gap-3">
+<span>HARDWARE REVISION: REV-B-048</span>
+<span>•</span>
+<span>MAIN BUS VOLTAGE: 28.4 VDC</span>
+<span>•</span>
+<span>THERMOCOUPLE SHUNT: 4.02 mV</span>
+</div>
+<div class="flex items-center gap-3">
+<span>CHASSIS GROUND: 0.002 OHM</span>
+<span>•</span>
+<span class="text-[#17150F] font-bold uppercase">PHYSICAL INSTRUMENTATION ACTIVE</span>
+</div>
+</div>
+</div></main></div></body></html>
