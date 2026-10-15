@@ -184,6 +184,13 @@ async def get_public_agents() -> List[Dict[str, Any]]:
             except Exception as e:
                 logger.warning("Error reading policy YAML for %s: %s", agent["agent_id"], e)
 
+        # Formulate concise plain-English policy summary
+        allowed_str = ", ".join(agent["allowed_tools"])
+        approval_str = ", ".join(agent["require_approval_tools"]) if agent.get("require_approval_tools") else "none"
+        agent["allowed_tools_summary"] = (
+            f"Allowed: {allowed_str} | Approval Required: {approval_str}"
+        )
+
     return agents
 
 

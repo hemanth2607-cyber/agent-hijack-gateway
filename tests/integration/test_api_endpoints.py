@@ -356,3 +356,32 @@ async def test_api_indirect_injection_shield_off_vs_on(async_client: AsyncClient
     assert generated_approval_id in pending_ids
 
 
+@pytest.mark.asyncio
+async def test_api_public_agents_and_summary(async_client: AsyncClient):
+    """Verifies public unauthenticated access to /v1/public/agents and /v1/public/summary."""
+    # 1. /v1/public/agents
+    res_agents = await async_client.get("/v1/public/agents")
+    assert res_agents.status_code == 200
+    agents = res_agents.json()
+    assert len(agents) == 3
+    agent_names = {a["display_name"] for a in agents}
+    assert agent_names == {"MailBot", "FinanceBot", "ResearchBot"}
+    for a in agents:
+        assert "description" in a
+        assert "allowed_tools" in a
+        assert "allowed_tools_summary" in a
+        for secret_kw in ("secret_key", "password", "salt", "token"):
+            assert secret_kw not in a
+
+    # 2. /v1/public/summary
+    res_summary = await async_client.get("/v1/public/summary")
+    assert res_summary.status_code == 200
+    summary = res_summary.json()
+    assert summary["status"] == "ok"
+    assert summary["detection_benchmark"]["heldout"]["recall_percent"] == 95.65
+    assert summary["detection_benchmark"]["adaptive"]["recall_percent"] == 9.09
+    assert summary["permission_layer"]["interception_rate_percent"] == 95.65
+    assert summary["permission_layer"]["known_escapes_count"] == 1
+
+
+
