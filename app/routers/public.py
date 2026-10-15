@@ -120,6 +120,7 @@ def get_cached_summary() -> Dict[str, Any]:
         "video_config": {
             "has_local_video": has_local_video,
             "demo_video_url": settings.demo_video_url,
+            "video_url": "/static/assets/demo.mp4" if has_local_video else None,
             "poster_url": "/static/assets/poster.jpg" if os.path.exists(os.path.join(frontend_dir, "assets", "poster.jpg")) else None,
         },
     }

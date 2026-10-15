@@ -45,6 +45,7 @@
           <span>ENTER THE PLAYGROUND</span>
           <span>&rarr;</span>
         </a>
+        <a href="#quickstart" class="btn-secondary">DEVELOPER QUICKSTART</a>
         <a href="/docs" class="btn-secondary">API SPECIFICATION (/DOCS)</a>
         <a href="https://github.com/hemanth2607-cyber/agent-hijack-gateway" target="_blank" rel="noopener" class="btn-secondary">GITHUB REPO</a>
       </div>
@@ -53,12 +54,49 @@
     <!-- Video & Explainer Section -->
     <section class="video-module">
       <div class="video-header">
-        <span>HOW IT WORKS // ADVERSARIAL PIPELINE EXPLAINER</span>
+        <span>DEVELOPER DEMO // CONNECTING AGENTS & DEFENSE-IN-DEPTH GATEWAY</span>
         <span>STATUS: SIMULATED ENVIRONMENT</span>
       </div>
       <div class="video-player-container" id="video-display-area">
         <!-- Injected dynamically via landing.js: <video>, <iframe>, or interactive 60s animated fallback -->
         <div style="color: #615E56; font-family: monospace; font-size: 13px;">INITIALIZING TELEMETRY STAGE...</div>
+      </div>
+    </section>
+
+    <!-- Developer Quickstart Section -->
+    <section class="quickstart-module" id="quickstart">
+      <div class="quickstart-header">
+        <span>DEVELOPER INTEGRATION // CONNECT YOUR AGENT IN 3 STEPS</span>
+        <span>REVERSE PROXY ARCHITECTURE</span>
+      </div>
+      <div class="quickstart-tabs">
+        <button class="quickstart-tab active" data-tab="tab-python">Python (OpenAI SDK)</button>
+        <button class="quickstart-tab" data-tab="tab-langchain">LangChain / CrewAI</button>
+        <button class="quickstart-tab" data-tab="tab-yaml">Agent Policy (YAML)</button>
+        <button class="quickstart-tab" data-tab="tab-curl">cURL / Raw HTTP</button>
+      </div>
+      <div class="quickstart-content">
+        <pre id="quickstart-code-display"><code># Step 1: Point your standard OpenAI client to the Tether Gateway
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://agent-hijack-gateway.onrender.com/v1",  # Tether Gateway URL
+    api_key="sk_client_demo_judge_access",                  # Your client API key
+)
+
+# Step 2: All agent prompts and tool calls pass through Tether's defense pipeline
+response = client.chat.completions.create(
+    model="coder_agent",
+    messages=[
+        {"role": "user", "content": "Analyze customer issue #104 and draft a patch."},
+    ],
+)
+
+print(response.choices[0].message.content)</code></pre>
+      </div>
+      <div class="quickstart-footer">
+        <span>GATEWAY ROUTE: POST /v1/chat &bull; ZERO-CHANGE AGENT HARNESS</span>
+        <a href="/playground" class="btn-secondary" style="padding: 6px 14px; font-size: 11px;">TEST IN PLAYGROUND &rarr;</a>
       </div>
     </section>
 

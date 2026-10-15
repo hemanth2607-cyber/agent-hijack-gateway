@@ -2,10 +2,13 @@
 
 [![CI Pipeline](https://github.com/enterprise/agent-hijack-shield/actions/workflows/ci.yml/badge.svg)](https://github.com/enterprise/agent-hijack-shield/actions)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.14-blue.svg)](https://www.python.org/)
+[![Developer Guide](https://img.shields.io/badge/Developer_Guide-Quickstart-orange.svg)](docs/DEVELOPER_GUIDE.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Security: Enterprise Hardened](https://img.shields.io/badge/Security-Fail--Closed-red.svg)](docs/THREAT_MODEL.md)
 
 **Agent Hijack Shield** is an enterprise-grade, fail-closed security gateway designed to protect Large Language Model (LLM) agents against **direct prompt injection, indirect injection via external untrusted content, unauthorized tool manipulation, and sensitive data exfiltration**.
+
+👉 **New to Tether? See the [Developer Integration Guide](docs/DEVELOPER_GUIDE.md) for 3-line drop-in agent connection.**
 
 The gateway acts as a security reverse-proxy mediating between clients/applications and autonomous AI agents, enforcing strict cryptographic capability boundaries and defense-in-depth permission controls.
 
