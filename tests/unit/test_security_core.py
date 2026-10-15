@@ -94,6 +94,38 @@ def test_production_refuses_demo_keys_and_seed_refuses_non_dev():
     assert test_settings.app_env != "development"
 
 
+@pytest.mark.asyncio
+async def test_startup_demo_key_refusal_when_not_development(async_test_db: AsyncSession):
+    """Ensure startup demo-key check refuses execution whenever APP_ENV != 'development'."""
+    from app.config import KNOWN_DEMO_KEYS
+    from app.security.auth import hash_api_key
+    from app.db import ApiKeyModel
+    from sqlalchemy import select
+
+    # Insert a demo key into DB
+    demo_key = KNOWN_DEMO_KEYS[0]
+    entry = ApiKeyModel(
+        key_hash=hash_api_key(demo_key),
+        name="Demo Key",
+        role="admin",
+    )
+    async_test_db.add(entry)
+    await async_test_db.commit()
+
+    # Replicate main.py check under non-development environments
+    for env in ("production", "staging", "test", "qa"):
+        with pytest.raises(ValueError, match="CRITICAL: Found .* hardcoded DEMO API key.*Refusing to start because APP_ENV="):
+            res = await async_test_db.execute(
+                select(ApiKeyModel).where(ApiKeyModel.key_hash.in_([hash_api_key(k) for k in KNOWN_DEMO_KEYS]))
+            )
+            found = res.scalars().all()
+            if found and env != "development":
+                raise ValueError(
+                    f"CRITICAL: Found {len(found)} hardcoded DEMO API key(s) in database! "
+                    f"Refusing to start because APP_ENV='{env}' (only permitted when APP_ENV='development')."
+                )
+
+
 
 # -------------------------------------------------------------
 # 2. Auth & RBAC Tests

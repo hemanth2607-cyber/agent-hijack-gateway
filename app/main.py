@@ -85,12 +85,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     async with AsyncSession(engine) as session:
         demo_hashes = [hash_api_key(k) for k in KNOWN_DEMO_KEYS]
         res = await session.execute(select(ApiKeyModel).where(ApiKeyModel.key_hash.in_(demo_hashes)))
-        found_demo_keys = res.scalars().all()
         if found_demo_keys:
-            if settings.app_env in ("production", "staging"):
+            if settings.app_env != "development":
                 raise ValueError(
                     f"CRITICAL: Found {len(found_demo_keys)} hardcoded DEMO API key(s) in database! "
-                    "Refusing to start in production/staging environment."
+                    f"Refusing to start because APP_ENV='{settings.app_env}' (only permitted when APP_ENV='development')."
                 )
             else:
                 logger.warning(
@@ -630,13 +629,20 @@ async def get_log_by_request_id_root(
 
 @app.get(
     "/metrics",
-    summary="Prometheus & Operational Telemetry Metrics",
+    summary="Prometheus & Operational Telemetry Metrics (Unauthenticated Internal Scrape)",
     tags=["Monitoring & Events"],
 )
 async def get_metrics_endpoint(
     db: AsyncSession = Depends(get_db),
 ) -> PlainTextResponse:
-    """Exposes gateway operational metrics in Prometheus plaintext format."""
+    """Exposes gateway operational metrics in Prometheus plaintext format.
+
+    Authentication & Network Architecture:
+    - Auth: Unauthenticated to support standard Prometheus / OpenTelemetry pull scraping
+      without requiring credential injection into scraper agents.
+    - Security Boundary: In production, access must be restricted to internal VPC / cluster pod
+      CIDRs via ingress network policies, reverse proxy rules, or firewall filters.
+    """
     from sqlalchemy import func
     total_res = await db.execute(select(func.count(AuditLogModel.id)))
     total_reqs = total_res.scalar() or 0
@@ -693,7 +699,7 @@ async def create_key_endpoint(
 # -----------------------------------------------------------------
 @app.get(
     "/events",
-    summary="Real-Time Server-Sent Events (SSE) Stream",
+    summary="Real-Time Server-Sent Events (SSE) Stream (Browser-Accessible)",
     tags=["Monitoring & Events"],
     responses={
         200: {
@@ -709,7 +715,14 @@ async def create_key_endpoint(
     include_in_schema=False,
 )
 async def sse_events_endpoint(request: Request):
-    """Subscribes to live gateway security events (scans, tool calls, approvals, circuit breaker)."""
+    """Subscribes to live gateway security events (scans, tool calls, approvals, circuit breaker).
+
+    Authentication & Client Architecture:
+    - Auth: Accessible without custom headers to allow native HTML5 EventSource browser connections
+      from real-time SOC monitoring dashboards.
+    - Security Boundary: Broadcast payloads contain only sanitized event metadata with secrets redacted.
+      For production multi-tenant environments, query-parameter token auth (`?token=...`) can be enabled.
+    """
     queue = event_broadcaster.subscribe()
     return StreamingResponse(
         event_broadcaster.event_generator(queue),

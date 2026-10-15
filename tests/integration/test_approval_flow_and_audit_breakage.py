@@ -3,6 +3,7 @@ audit chain tampering detection, and extended Phase 5 endpoints.
 """
 
 import json
+import os
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -284,3 +285,96 @@ async def test_extended_phase5_endpoints(flow_client: AsyncClient):
     )
     assert res_rel.status_code == 200
     assert res_rel.json()["status"] == "released"
+
+
+@pytest.mark.asyncio
+async def test_put_policies_rbac_and_widening_rejection(flow_client: AsyncClient):
+    """Verifies that non-analyst/non-admin cannot PUT policies (403),
+    and analyst attempting privilege widening is rejected with 403,
+    while admin is permitted to widen policies.
+    """
+    agent_id = "agent_policy_test"
+    # Create base policy first
+    base_policy = {
+        "agent_id": agent_id,
+        "version": 1,
+        "description": "Test policy",
+        "allowed_tools": ["calculator", "read_clock"],
+        "denied_tools": ["execute_bash", "delete_file"],
+        "require_approval_tools": ["send_email"],
+        "max_transaction_amount": 100.0,
+        "network": {"allowed_domains": ["api.weather.gov"], "denied_domains": []},
+        "filesystem": {"allowed_directories": [], "denied_patterns": []},
+        "allowed_email_domains": ["@company.com"],
+        "argument_schemas": {},
+    }
+    # Initial registration by admin
+    res_init = await flow_client.put(
+        f"/v1/policies/{agent_id}",
+        headers={"X-API-Key": flow_client.admin_key},
+        json=base_policy,
+    )
+    assert res_init.status_code == 200
+
+    try:
+        # 1. Client role attempting PUT policy -> 403
+        res_client = await flow_client.put(
+            f"/v1/policies/{agent_id}",
+            headers={"X-API-Key": flow_client.client_key},
+            json=base_policy,
+        )
+        assert res_client.status_code == 403
+        assert "requires 'analyst' privilege" in res_client.json()["detail"]
+
+        # 2. Approver role attempting PUT policy -> 403
+        res_approver = await flow_client.put(
+            f"/v1/policies/{agent_id}",
+            headers={"X-API-Key": flow_client.approver_key},
+            json=base_policy,
+        )
+        assert res_approver.status_code == 403
+        assert "requires 'analyst' privilege" in res_approver.json()["detail"]
+
+        # 3. Analyst attempting privilege widening (adding execute_bash to allowed_tools) -> 403
+        widened_policy = dict(base_policy)
+        widened_policy["allowed_tools"] = ["calculator", "read_clock", "execute_bash"]
+        widened_policy["denied_tools"] = ["delete_file"]
+        widened_policy["version"] = 2
+
+        res_analyst_widening = await flow_client.put(
+            f"/v1/policies/{agent_id}",
+            headers={"X-API-Key": flow_client.analyst_key},
+            json=widened_policy,
+        )
+        assert res_analyst_widening.status_code == 403
+        assert "Privilege widening rejected" in res_analyst_widening.json()["detail"]
+        assert "only admins can expand agent permissions" in res_analyst_widening.json()["detail"]
+
+        # 4. Analyst attempting budget expansion widening -> 403
+        budget_widened_policy = dict(base_policy)
+        budget_widened_policy["max_transaction_amount"] = 5000.0
+        budget_widened_policy["version"] = 2
+
+        res_analyst_budget = await flow_client.put(
+            f"/v1/policies/{agent_id}",
+            headers={"X-API-Key": flow_client.analyst_key},
+            json=budget_widened_policy,
+        )
+        assert res_analyst_budget.status_code == 403
+        assert "Privilege widening rejected" in res_analyst_budget.json()["detail"]
+
+        # 5. Admin executing the same privilege widening -> 200 OK
+        res_admin_widening = await flow_client.put(
+            f"/v1/policies/{agent_id}",
+            headers={"X-API-Key": flow_client.admin_key},
+            json=widened_policy,
+        )
+        assert res_admin_widening.status_code == 200
+        assert res_admin_widening.json()["status"] == "updated"
+        assert "diff" in res_admin_widening.json()
+
+    finally:
+        test_yaml_path = os.path.join("policies", f"{agent_id}.yaml")
+        if os.path.exists(test_yaml_path):
+            os.remove(test_yaml_path)
+

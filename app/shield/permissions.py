@@ -234,7 +234,7 @@ class PolicyRegistry:
     ) -> Tuple[bool, str, str]:
         """Registers or updates a policy with privilege widening protection."""
         agent_id = new_policy.agent_id
-        old_policy = self._policies.get(agent_id)
+        old_policy = self.get_policy(agent_id)
 
         if old_policy is not None:
             is_widened, reasons = detect_privilege_widening(old_policy, new_policy)
@@ -244,7 +244,7 @@ class PolicyRegistry:
                     f"Privilege widening rejected: only admins can expand agent permissions. Reasons: {'; '.join(reasons)}",
                     "",
                 )
-            new_policy.version = old_policy.version + 1
+            new_policy.version = max(old_policy.version + 1, new_policy.version)
             diff = compute_policy_diff(
                 serialize_policy_to_yaml(old_policy),
                 serialize_policy_to_yaml(new_policy),
