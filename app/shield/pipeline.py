@@ -587,23 +587,49 @@ class SecurityGatewayPipeline:
         # Transfer funds
         if "transfer" in text_lower or "transfer_funds" in text_lower or "send money" in text_lower:
             import re
-            amt_match = re.search(r"\$?(\d+(?:\.\d{2})?)", combined_text)
-            amount = float(amt_match.group(1)) if amt_match else 100.0
+            amt_match = re.search(r"\$?([\d,]+(?:\.\d{2})?)", combined_text)
+            amount = 100.0
+            if amt_match:
+                try:
+                    amount = float(amt_match.group(1).replace(",", ""))
+                except ValueError:
+                    amount = 100.0
             proposals.append(("transfer_funds", {"amount": amount, "destination": "ACCT-9876"}))
 
-        # Search docs
-        if "search" in text_lower or "find doc" in text_lower:
-            proposals.append(("search_docs", {"query": message[:50]}))
+        # Bash / Terminal execution (for permission denial testing)
+        if "execute_bash" in text_lower or "bash_exec" in text_lower or "bash command" in text_lower or "execute bash" in text_lower:
+            proposals.append(("execute_bash", {"command": "whoami"}))
+
+        # File reading / Traversal
+        if "read_file" in text_lower or "read file" in text_lower or ".env" in text_lower or "../../" in text_lower:
+            path = "/workspace/public/../../.env" if "../../" in combined_text or ".env" in text_lower else "/workspace/public/report.txt"
+            proposals.append(("read_file", {"path": path}))
+
+        # Search docs / Weather lookup
+        if ("search" in text_lower or "find doc" in text_lower or "weather report" in text_lower) and not ("fetch url" in text_lower or "http_request" in text_lower):
+            query = "weather report Seattle" if "weather" in text_lower else message[:50]
+            proposals.append(("search_docs", {"query": query}))
 
         # Write file
         if "write file" in text_lower or "write_file" in text_lower or "save to" in text_lower:
             proposals.append(("write_file", {"path": "/workspace/public/output.txt", "content": "Sample output"}))
 
-        # HTTP request
-        if "fetch url" in text_lower or "http_request" in text_lower or "download from" in text_lower:
+        # HTTP request / Metadata SSRF / Egress
+        if (
+            "fetch url" in text_lower
+            or "http_request" in text_lower
+            or "download from" in text_lower
+            or "169.254.169.254" in combined_text
+            or "web_fetch" in text_lower
+        ):
             import re
-            url_match = re.search(r"(https?://[^\s]+)", combined_text)
-            url = url_match.group(1) if url_match else "https://api.weather.gov/forecast"
+            url_match = re.search(r"(https?://[^\s\"'>]+)", combined_text)
+            if url_match:
+                url = url_match.group(1)
+            elif "169.254.169.254" in combined_text:
+                url = "http://169.254.169.254/latest/meta-data/"
+            else:
+                url = "https://api.weather.gov/forecast"
             proposals.append(("http_request", {"url": url, "method": "GET"}))
 
         return proposals

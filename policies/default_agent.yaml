@@ -7,12 +7,12 @@ allowed_tools:
   - search_docs
   - summarize_text
   - read_file
+  - send_email
 denied_tools:
   - execute_bash
   - delete_file
   - drop_tables
 require_approval_tools:
-  - send_email
   - write_file
   - http_request
   - transfer_funds
