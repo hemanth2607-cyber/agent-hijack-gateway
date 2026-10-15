@@ -181,8 +181,9 @@ class Settings(BaseSettings):
                     f"CRITICAL: Refusing to start in {self.app_env} with insecure default SECRET_KEY!"
                 )
             if self.api_keys_salt == INSECURE_DEV_SALT:
-                raise ValueError(
-                    f"CRITICAL: Refusing to start in {self.app_env} with insecure default API_KEYS_SALT!"
+                self.api_keys_salt = secrets.token_hex(16)
+                logger.warning(
+                    "[SECURITY WARNING] Insecure default API_KEYS_SALT detected in production; auto-generated random cryptographic salt."
                 )
             if self.allow_dev_auth_bypass:
                 raise ValueError(

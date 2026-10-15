@@ -29,7 +29,8 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application source code with correct ownership
+# Invalidate cache for new application code
+ARG CACHEBUST=20261016_0354
 COPY --chown=shield:shield . /app/
 
 # Switch to unprivileged security user
