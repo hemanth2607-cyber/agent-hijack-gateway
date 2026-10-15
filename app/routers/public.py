@@ -11,6 +11,8 @@ import yaml
 
 from app.config import settings
 from app.db import ApiKeyModel, get_db
+from app.models import AuditVerifyResponse
+from app.security.audit_chain import verify_audit_chain
 from app.security.auth import hash_api_key
 
 logger = logging.getLogger(__name__)
@@ -194,6 +196,12 @@ async def get_public_agents() -> List[Dict[str, Any]]:
     return agents
 
 
+@router.get("/audit/verify", response_model=AuditVerifyResponse, summary="Public Audit Chain Verification")
+async def public_audit_verify(db: AsyncSession = Depends(get_db)) -> AuditVerifyResponse:
+    """Verifies the complete cryptographic hash chain across all audit logs."""
+    return await verify_audit_chain(db)
+
+
 @router.get("/config", summary="Public Client Configuration for Demo Playground")
 async def get_public_config(db: AsyncSession = Depends(get_db)) -> Dict[str, Any]:
     """Returns safe, CLIENT-role public key for playground requests. Never returns admin keys."""
@@ -205,16 +213,14 @@ async def get_public_config(db: AsyncSession = Depends(get_db)) -> Dict[str, Any
     elif settings.app_env == "development":
         client_key = "sk_client_demo_9876543210abcdef"
     else:
-        # In production without explicit JUDGE_API_KEY, query a client-role key
-        result = await db.execute(select(ApiKeyModel).where(ApiKeyModel.role == "client").limit(1))
-        client_record = result.scalar_one_or_none()
-        if client_record:
-            # We don't have the plaintext for existing hashed keys unless provided by env
-            pass
+        # Render / production default judge client key
+        client_key = "sk_judge_demo_zero_setup_client_key_32chars"
 
     return {
         "client_key": client_key or "",
         "app_env": settings.app_env,
         "is_simulated": True,
+        "demo_video_url": settings.demo_video_url or "",
         "notice": "All tools are simulated. No real actions are ever performed.",
     }
+

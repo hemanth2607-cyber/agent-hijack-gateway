@@ -110,6 +110,31 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             print(f"  Role: admin (Use header: X-API-Key: {raw_key})")
             print(f"=======================================================\n")
 
+        # Bootstrap Judge Key for zero-setup demo
+        judge_key = settings.judge_api_key or (
+            "sk_client_demo_9876543210abcdef"
+            if settings.app_env == "development"
+            else "sk_judge_demo_zero_setup_client_key_32chars"
+        )
+        if len(judge_key) < 32:
+            raise ValueError("JUDGE_API_KEY must be at least 32 characters long.")
+        if settings.app_env != "development" and judge_key in KNOWN_DEMO_KEYS:
+            raise ValueError(f"JUDGE_API_KEY cannot use known hardcoded demo keys in {settings.app_env}.")
+
+        judge_hash = hash_api_key(judge_key)
+        res = await session.execute(select(ApiKeyModel).where(ApiKeyModel.key_hash == judge_hash))
+        existing_judge = res.scalar_one_or_none()
+        if not existing_judge:
+            new_judge = ApiKeyModel(
+                name="Public Judge Client",
+                role="client",
+                key_hash=judge_hash,
+                revoked=False,
+            )
+            session.add(new_judge)
+            await session.commit()
+            logger.info("Bootstrapped public Judge API key with role=client")
+
     yield
 
     logger.info("Shutting down Agent Hijack Shield gateway...")
@@ -148,11 +173,13 @@ from app.routers.stats import router as stats_router
 from app.routers.eval import router as eval_router
 from app.routers.logs import router as logs_router
 from app.routers.public import router as public_router
+from app.routers.demo import router as demo_router
 
 app.include_router(stats_router)
 app.include_router(eval_router)
 app.include_router(logs_router)
 app.include_router(public_router)
+app.include_router(demo_router)
 
 
 # -----------------------------------------------------------------

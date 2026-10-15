@@ -103,9 +103,9 @@ class SecurityMiddleware(BaseHTTPMiddleware):
 
         # 2. Rate Limiting by Client IP
         client_ip = request.client.host if request.client else "unknown"
-        # Exempt health and static endpoints from aggressive rate limiting
+        # Exempt health, public, and static endpoints from aggressive rate limiting
         path = request.url.path
-        if not path.startswith("/static") and path not in ("/health", "/healthz", "/metrics", "/", "/playground", "/scenarios.json"):
+        if not path.startswith("/static") and not path.startswith("/v1/public") and path not in ("/health", "/healthz", "/metrics", "/", "/playground", "/scenarios.json"):
             if rate_limiter.is_rate_limited(
                 client_ip,
                 max_requests=settings.rate_limit_per_minute_ip,
