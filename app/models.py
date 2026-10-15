@@ -149,7 +149,7 @@ class ChatResponse(BaseModel):
     """Response returned after running through the secure gateway pipeline."""
 
     response: str = Field(..., description="Agent response or safe refusal message")
-    verdict: Literal["ALLOW", "FLAG", "BLOCK"]
+    verdict: Literal["ALLOW", "FLAG", "BLOCK", "REQUIRE_APPROVAL"]
     risk_score: float
     findings: List[Finding] = Field(default_factory=list)
     tool_calls: List[ToolCallDecision] = Field(default_factory=list)

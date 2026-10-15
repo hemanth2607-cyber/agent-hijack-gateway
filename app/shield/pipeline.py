@@ -484,7 +484,19 @@ class SecurityGatewayPipeline:
                     latency_ms=round((time.perf_counter() - t_start) * 1000.0, 2),
                 )
 
-            final_verdict = "BLOCK" if outbound_res.is_blocked else ("FLAG" if max_inbound_score >= 40.0 else "ALLOW")
+            if outbound_res.is_blocked:
+                final_verdict = "BLOCK"
+            elif any(t.verdict == "DENY" for t in tool_decisions):
+                final_verdict = "BLOCK"
+            elif pending_approval_ids or any(t.verdict == "REQUIRE_APPROVAL" for t in tool_decisions):
+                final_verdict = "REQUIRE_APPROVAL"
+            elif max_inbound_score >= 75.0:
+                final_verdict = "BLOCK"
+            elif max_inbound_score >= 40.0:
+                final_verdict = "FLAG"
+            else:
+                final_verdict = "ALLOW"
+
             final_risk = max(max_inbound_score, outbound_res.risk_score)
             all_findings.extend(outbound_res.findings)
             all_reason_codes.extend(outbound_res.reason_codes)
@@ -587,7 +599,9 @@ class SecurityGatewayPipeline:
         # Transfer funds
         if "transfer" in text_lower or "transfer_funds" in text_lower or "send money" in text_lower:
             import re
-            amt_match = re.search(r"\$?([\d,]+(?:\.\d{2})?)", combined_text)
+            amt_match = re.search(r"\$([0-9,]+(?:\.[0-9]{2})?)", combined_text)
+            if not amt_match:
+                amt_match = re.search(r"\b([0-9,]+(?:\.[0-9]{2})?)\b", combined_text)
             amount = 100.0
             if amt_match:
                 try:

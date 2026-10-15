@@ -171,6 +171,16 @@ async def get_public_agents() -> List[Dict[str, Any]]:
             "denied_tools": ["execute_bash", "delete_file", "transfer_funds", "send_email"],
             "restrictions": "Network restricted to allowlisted domains (*.wikipedia.org, *.arxiv.org, *.nih.gov, *.github.com); SSRF protection active.",
         },
+        {
+            "agent_id": "coder_agent",
+            "display_name": "CoderBot",
+            "role_title": "Software Engineering Assistant",
+            "description": "Reads source code, analyzes git diffs; terminal execution strictly denied.",
+            "allowed_tools": ["git_diff", "run_linter", "read_code", "read_file"],
+            "require_approval_tools": ["write_file", "git_push", "http_request"],
+            "denied_tools": ["execute_bash", "delete_file", "drop_tables", "send_email"],
+            "restrictions": "Terminal access (execute_bash) denied; sensitive files (.env, credentials) forbidden by sandbox.",
+        },
     ]
 
     # Dynamically verify and enrich with policy YAML if available

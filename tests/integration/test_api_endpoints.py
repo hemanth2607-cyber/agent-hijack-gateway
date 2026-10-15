@@ -335,7 +335,7 @@ async def test_api_indirect_injection_shield_off_vs_on(async_client: AsyncClient
     assert res_on.status_code == 200
     data_on = res_on.json()
     assert data_on["shield_enabled"] is True
-    assert data_on["verdict"] in ("ALLOW", "FLAG")
+    assert data_on["verdict"] in ("ALLOW", "FLAG", "REQUIRE_APPROVAL")
     assert len(data_on["tool_calls"]) == 1
     call_on = data_on["tool_calls"][0]
     assert call_on["tool_name"] == "send_email"
@@ -363,9 +363,9 @@ async def test_api_public_agents_and_summary(async_client: AsyncClient):
     res_agents = await async_client.get("/v1/public/agents")
     assert res_agents.status_code == 200
     agents = res_agents.json()
-    assert len(agents) == 3
+    assert len(agents) == 4
     agent_names = {a["display_name"] for a in agents}
-    assert agent_names == {"MailBot", "FinanceBot", "ResearchBot"}
+    assert agent_names == {"MailBot", "FinanceBot", "ResearchBot", "CoderBot"}
     for a in agents:
         assert "description" in a
         assert "allowed_tools" in a

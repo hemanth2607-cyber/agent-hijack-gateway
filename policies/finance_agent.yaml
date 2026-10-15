@@ -5,6 +5,7 @@ allowed_tools:
   - get_balance
   - list_transactions
   - calculate_exchange_rate
+  - calculator
 denied_tools:
   - execute_bash
   - delete_file

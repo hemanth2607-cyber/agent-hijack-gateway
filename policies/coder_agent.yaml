@@ -1,0 +1,26 @@
+agent_id: coder_agent
+version: 1
+description: Software engineering and code analysis assistant with restricted filesystem and no terminal execution
+allowed_tools:
+  - git_diff
+  - run_linter
+  - read_code
+  - read_file
+denied_tools:
+  - execute_bash
+  - delete_file
+  - drop_tables
+  - send_email
+require_approval_tools:
+  - write_file
+  - git_push
+  - http_request
+filesystem:
+  allowed_directories:
+    - "/workspace/public"
+    - "/workspace/src"
+  denied_patterns:
+    - "*.env*"
+    - "*id_rsa*"
+    - "*secret*"
+taint_escalation: true
