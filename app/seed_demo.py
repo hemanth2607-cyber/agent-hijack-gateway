@@ -31,6 +31,7 @@ from app.db import (
     QuarantineModel,
     engine,
 )
+from app.config import settings
 from app.security.audit_chain import append_audit_entry
 from app.security.auth import hash_api_key
 from app.shield.permissions import policy_registry
@@ -48,6 +49,10 @@ DEMO_API_KEYS = [
 
 async def seed_database() -> None:
     """Executes full database demo seeding."""
+    if settings.app_env != "development":
+        print(f"\n[CRITICAL ERROR] seed_demo is strictly restricted to development environments! Current APP_ENV='{settings.app_env}'. Aborting.")
+        sys.exit(1)
+
     print("\n=======================================================")
     print("  SEEDING AGENT HIJACK SHIELD DEMO ENVIRONMENT")
     print("=======================================================\n")

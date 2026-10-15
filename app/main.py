@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.config import settings
+from app.config import KNOWN_DEMO_KEYS, settings
 from app.events import event_broadcaster
 from app.db import (
     ApiKeyModel,
@@ -50,6 +50,7 @@ from app.security.auth import (
     AuthenticatedUser,
     create_api_key,
     get_current_user,
+    hash_api_key,
     require_role,
 )
 from app.security.middleware import SecurityMiddleware
@@ -72,12 +73,32 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Manages application startup and shutdown lifecycle."""
     logger.info("Initializing Agent Hijack Shield gateway...")
 
+    # Enforce fail-closed production readiness
+    settings.validate_production_readiness()
+
     # Create database schema if not present
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-    # In development mode, ensure at least one demo admin key exists for initial access
+    # Check for hardcoded demo keys in database
     async with AsyncSession(engine) as session:
+        demo_hashes = [hash_api_key(k) for k in KNOWN_DEMO_KEYS]
+        res = await session.execute(select(ApiKeyModel).where(ApiKeyModel.key_hash.in_(demo_hashes)))
+        found_demo_keys = res.scalars().all()
+        if found_demo_keys:
+            if settings.app_env in ("production", "staging"):
+                raise ValueError(
+                    f"CRITICAL: Found {len(found_demo_keys)} hardcoded DEMO API key(s) in database! "
+                    "Refusing to start in production/staging environment."
+                )
+            else:
+                logger.warning(
+                    "[SECURITY WARNING] %d DEMO API key(s) detected in database! Ensure these are revoked or deleted before deploying to production.",
+                    len(found_demo_keys),
+                )
+                print(f"[SECURITY WARNING] {len(found_demo_keys)} DEMO API key(s) detected in database! Do not use these keys in production.")
+
+        # In development mode, ensure at least one demo admin key exists for initial access
         result = await session.execute(select(ApiKeyModel).limit(1))
         existing_key = result.scalar_one_or_none()
         if not existing_key:

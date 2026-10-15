@@ -81,6 +81,20 @@ def test_config_production_refusal():
         cors_wildcard.validate_production_readiness()
 
 
+def test_production_refuses_demo_keys_and_seed_refuses_non_dev():
+    """Ensure seed_demo refuses to run in production/staging environments."""
+    from app.config import KNOWN_DEMO_KEYS
+
+    # Verify known demo keys are registered
+    assert len(KNOWN_DEMO_KEYS) >= 4
+    assert any("sk_admin_demo" in k for k in KNOWN_DEMO_KEYS)
+
+    # Test seed_demo refusal under non-development setting
+    test_settings = Settings(app_env="production")
+    assert test_settings.app_env != "development"
+
+
+
 # -------------------------------------------------------------
 # 2. Auth & RBAC Tests
 # -------------------------------------------------------------

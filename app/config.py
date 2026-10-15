@@ -16,6 +16,13 @@ logger = logging.getLogger("shield.config")
 INSECURE_DEV_SECRET = "change-this-in-production-dev-only-secret-key-32chars"  # nosec B105
 INSECURE_DEV_SALT = "gateway-salt-dev-mode-only"  # nosec B105
 
+KNOWN_DEMO_KEYS = [
+    "sk_admin_demo_9876543210abcdef",
+    "sk_analyst_demo_9876543210abcdef",
+    "sk_approver_demo_9876543210abcdef",
+    "sk_client_demo_9876543210abcdef",
+]
+
 
 class Settings(BaseSettings):
     """Production-grade gateway configuration settings."""
