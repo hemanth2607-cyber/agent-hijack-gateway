@@ -7,7 +7,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PORT=8000 \
     APP_ENV=production \
-    DEMO_MODE=true
+    DEMO_MODE=true \
+    SECRET_KEY=tether_prod_secret_key_8f3a2b1c9d4e5f6a7b8c9d0e1f2a3b4c \
+    API_KEYS_SALT=tether_prod_salt_8f3a2b1c9d4e5f6a \
+    JUDGE_API_KEY=sk_client_demo_judge_access
 
 # Install system dependencies (curl for healthcheck) and create unprivileged security user
 RUN apt-get update && apt-get install -y --no-install-recommends \
