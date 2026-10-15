@@ -62,3 +62,43 @@ async def get_logs_endpoint(
         })
 
     return {"records": entries, "count": len(entries), "limit": limit, "offset": offset}
+
+
+@router.get("/{request_id}", summary="Get Audit Log by Request ID")
+async def get_log_by_request_id(
+    request_id: str,
+    user: AuthenticatedUser = Depends(require_role("analyst")),
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
+    """Retrieves a single audit log entry by request_id."""
+    stmt = select(AuditLogModel).where(AuditLogModel.request_id == request_id).order_by(desc(AuditLogModel.id)).limit(1)
+    res = await db.execute(stmt)
+    r = res.scalar_one_or_none()
+    if not r:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=f"Log entry for request_id '{request_id}' not found")
+
+    try:
+        reasons = json.loads(r.reason_codes)
+    except Exception:
+        reasons = []
+    try:
+        details = json.loads(r.details_json)
+    except Exception:
+        details = {}
+
+    return {
+        "id": r.id,
+        "request_id": r.request_id,
+        "timestamp": r.timestamp,
+        "agent_id": r.agent_id,
+        "session_id": r.session_id,
+        "action_type": r.action_type,
+        "verdict": r.verdict,
+        "risk_score": r.risk_score,
+        "reason_codes": reasons,
+        "details": details,
+        "prev_hash": r.prev_hash,
+        "current_hash": r.current_hash,
+    }
+

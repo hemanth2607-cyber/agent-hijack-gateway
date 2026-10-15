@@ -14,7 +14,7 @@ import time
 from typing import Any, AsyncGenerator, Dict, List, Optional
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -475,6 +475,60 @@ async def release_quarantine_endpoint(
     return {"target": target, "status": "released", "released_by": user.name}
 
 
+@app.post(
+    "/v1/agents/{agent_id}/quarantine",
+    response_model=QuarantineStatusResponse,
+    summary="Quarantine Specific Agent",
+    tags=["Circuit Breaker"],
+)
+@app.post("/agents/{agent_id}/quarantine", include_in_schema=False)
+async def agent_quarantine_endpoint(
+    agent_id: str,
+    body: QuarantineRequest = QuarantineRequest(reason="Admin quarantined agent"),
+    user: AuthenticatedUser = Depends(require_role("admin")),
+    db: AsyncSession = Depends(get_db),
+) -> QuarantineStatusResponse:
+    """Places a specific agent into circuit breaker quarantine."""
+    rec = await circuit_breaker.quarantine_target(
+        db=db,
+        target_id=agent_id,
+        target_type="agent",
+        reason=body.reason,
+        quarantined_by=user.name,
+    )
+    return QuarantineStatusResponse(
+        target_id=rec.target_id,
+        target_type=rec.target_type,
+        is_quarantined=rec.is_quarantined,
+        quarantined_at=rec.quarantined_at,
+        reason=rec.reason,
+        quarantined_by=rec.quarantined_by,
+    )
+
+
+@app.post(
+    "/v1/agents/{agent_id}/release",
+    summary="Release Agent from Quarantine",
+    tags=["Circuit Breaker"],
+)
+@app.post("/agents/{agent_id}/release", include_in_schema=False)
+async def agent_release_endpoint(
+    agent_id: str,
+    user: AuthenticatedUser = Depends(require_role("admin")),
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
+    """Releases a quarantined agent. Admin only."""
+    success = await circuit_breaker.release_quarantine(
+        db=db,
+        target_id=agent_id,
+        released_by=user.name,
+        user_role=user.role,
+    )
+    if not success:
+        raise HTTPException(status_code=404, detail=f"Agent '{agent_id}' not found in active quarantine")
+    return {"agent_id": agent_id, "status": "released", "released_by": user.name}
+
+
 # -----------------------------------------------------------------
 # Agent Policies Management
 # -----------------------------------------------------------------
@@ -483,6 +537,7 @@ async def release_quarantine_endpoint(
     summary="View Agent Policy",
     tags=["Policy Engine"],
 )
+@app.get("/policies/{agent_id}", include_in_schema=False)
 async def get_policy_endpoint(
     agent_id: str,
     user: AuthenticatedUser = Depends(require_role("analyst")),
@@ -497,6 +552,7 @@ async def get_policy_endpoint(
     summary="Update Agent Policy",
     tags=["Policy Engine"],
 )
+@app.put("/policies/{agent_id}", include_in_schema=False)
 async def update_policy_endpoint(
     agent_id: str,
     policy: AgentPolicy,
@@ -520,6 +576,89 @@ async def update_policy_endpoint(
     await db.commit()
 
     return {"status": "updated", "message": msg, "version": policy.version, "diff": diff}
+
+
+@app.get(
+    "/v1/policies/{agent_id}/history",
+    summary="Get Agent Policy History",
+    tags=["Policy Engine"],
+)
+@app.get("/policies/{agent_id}/history", include_in_schema=False)
+async def get_policy_history_endpoint(
+    agent_id: str,
+    user: AuthenticatedUser = Depends(require_role("analyst")),
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
+    """Returns the versioned history of policy updates for an agent."""
+    stmt = (
+        select(PolicyHistoryModel)
+        .where(PolicyHistoryModel.agent_id == agent_id)
+        .order_by(desc(PolicyHistoryModel.version))
+    )
+    res = await db.execute(stmt)
+    records = res.scalars().all()
+    history = [
+        {
+            "id": r.id,
+            "agent_id": r.agent_id,
+            "version": r.version,
+            "policy_yaml": r.policy_yaml,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+            "updated_by": r.updated_by,
+        }
+        for r in records
+    ]
+    return {"agent_id": agent_id, "versions_count": len(history), "history": history}
+
+
+@app.get(
+    "/logs/{request_id}",
+    summary="Get Log by Request ID (Root Alias)",
+    tags=["Audit & Logs"],
+    include_in_schema=False,
+)
+async def get_log_by_request_id_root(
+    request_id: str,
+    user: AuthenticatedUser = Depends(require_role("analyst")),
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
+    """Root alias for /v1/logs/{request_id}."""
+    from app.routers.logs import get_log_by_request_id
+    return await get_log_by_request_id(request_id=request_id, user=user, db=db)
+
+
+@app.get(
+    "/metrics",
+    summary="Prometheus & Operational Telemetry Metrics",
+    tags=["Monitoring & Events"],
+)
+async def get_metrics_endpoint(
+    db: AsyncSession = Depends(get_db),
+) -> PlainTextResponse:
+    """Exposes gateway operational metrics in Prometheus plaintext format."""
+    from sqlalchemy import func
+    total_res = await db.execute(select(func.count(AuditLogModel.id)))
+    total_reqs = total_res.scalar() or 0
+
+    verdict_stmt = select(AuditLogModel.verdict, func.count(AuditLogModel.id)).group_by(AuditLogModel.verdict)
+    verdict_res = await db.execute(verdict_stmt)
+    counts = {v: c for v, c in verdict_res.all()}
+
+    lines = [
+        "# HELP shield_requests_total Total number of chat requests processed by the security gateway",
+        "# TYPE shield_requests_total counter",
+        f"shield_requests_total {total_reqs}",
+        "# HELP shield_verdict_total Total decisions by verdict type",
+        "# TYPE shield_verdict_total counter",
+        f'shield_verdict_total{{verdict="BLOCK"}} {counts.get("BLOCK", 0)}',
+        f'shield_verdict_total{{verdict="FLAG"}} {counts.get("FLAG", 0)}',
+        f'shield_verdict_total{{verdict="ALLOW"}} {counts.get("ALLOW", 0)}',
+        "# HELP shield_circuit_breaker_quarantined Number of currently quarantined targets",
+        "# TYPE shield_circuit_breaker_quarantined gauge",
+        f"shield_circuit_breaker_quarantined {len(circuit_breaker._quarantined_agents)}",
+    ]
+    return PlainTextResponse("\n".join(lines) + "\n")
+
 
 
 # -----------------------------------------------------------------
