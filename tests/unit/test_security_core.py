@@ -126,6 +126,37 @@ async def test_startup_demo_key_refusal_when_not_development(async_test_db: Asyn
                 )
 
 
+@pytest.mark.asyncio
+async def test_app_lifespan_refuses_boot_with_production_and_demo_keys(monkeypatch):
+    """Directly boots the FastAPI lifespan with APP_ENV=production and asserts ValueError is raised."""
+    from app.main import app, lifespan
+    from app.config import settings, KNOWN_DEMO_KEYS
+    from app.security.auth import hash_api_key
+    from app.db import ApiKeyModel, engine
+    from sqlalchemy import select
+    from sqlalchemy.ext.asyncio import AsyncSession
+
+    monkeypatch.setattr(settings, "app_env", "production")
+    monkeypatch.setattr(settings, "secret_key", "sec" * 20)
+    monkeypatch.setattr(settings, "api_keys_salt", "salt" * 8)
+
+    async with AsyncSession(engine) as session:
+        demo_key = KNOWN_DEMO_KEYS[0]
+        h = hash_api_key(demo_key)
+        res = await session.execute(select(ApiKeyModel).where(ApiKeyModel.key_hash == h))
+        if not res.scalar_one_or_none():
+            entry = ApiKeyModel(
+                key_hash=h,
+                name="Demo Key In DB",
+                role="admin",
+            )
+            session.add(entry)
+            await session.commit()
+
+    with pytest.raises(ValueError, match="CRITICAL: Found .* hardcoded DEMO API key.*Refusing to start because APP_ENV='production'"):
+        async with lifespan(app):
+            pass
+
 
 # -------------------------------------------------------------
 # 2. Auth & RBAC Tests
@@ -341,3 +372,95 @@ def test_path_traversal_defenses():
         except (OSError, NotImplementedError):
             # Windows non-elevated developer mode fallback: verify logic with pathlib mock
             pass
+
+
+# -------------------------------------------------------------
+# 5. Metrics & Telemetry Auth Tests
+# -------------------------------------------------------------
+@pytest.mark.asyncio
+async def test_metrics_auth_in_production_and_development(async_test_db: AsyncSession, monkeypatch):
+    """Ensure /metrics requires analyst/admin auth in production, but is open in development."""
+    from starlette.testclient import TestClient
+    from app.main import app
+    from app.config import settings
+    from app.security.auth import create_api_key
+    from app.db import get_db
+
+    async def override_get_db():
+        yield async_test_db
+
+    app.dependency_overrides[get_db] = override_get_db
+    try:
+        client = TestClient(app)
+
+        # 1. In development: open access
+        monkeypatch.setattr(settings, "app_env", "development")
+        res = client.get("/metrics")
+        assert res.status_code == 200
+        assert "shield_requests_total" in res.text
+
+        # 2. In production: unauthenticated access fails with 401
+        monkeypatch.setattr(settings, "app_env", "production")
+        res_no_auth = client.get("/metrics")
+        assert res_no_auth.status_code == 401
+
+        # 3. In production: client role (unauthorized) fails with 403
+        client_raw_key, _ = await create_api_key(async_test_db, name="test-client-user", role="client")
+        res_client = client.get("/metrics", headers={"X-API-Key": client_raw_key})
+        assert res_client.status_code == 403
+
+        # 4. In production: analyst role succeeds with 200
+        analyst_raw_key, _ = await create_api_key(async_test_db, name="test-analyst-user", role="analyst")
+        res_analyst = client.get("/metrics", headers={"X-API-Key": analyst_raw_key})
+        assert res_analyst.status_code == 200
+        assert "shield_requests_total" in res_analyst.text
+    finally:
+        app.dependency_overrides.clear()
+
+
+# -------------------------------------------------------------
+# 6. SSE Event Ticket Token Tests
+# -------------------------------------------------------------
+@pytest.mark.asyncio
+async def test_sse_events_token_and_auth(async_test_db: AsyncSession, monkeypatch):
+    """Ensure SSE token endpoint generates short-lived tickets that authenticate /events."""
+    from fastapi import HTTPException
+    from starlette.requests import Request
+    from app.main import generate_sse_token_endpoint, sse_events_endpoint
+    from app.config import settings
+    from app.security.auth import AuthenticatedUser
+    from app.events import verify_sse_token
+
+    # 1. Generate token via endpoint
+    user = AuthenticatedUser(key_id=1, name="Analyst User", role="analyst")
+    token_resp = await generate_sse_token_endpoint(user=user)
+    assert "sse_token" in token_resp
+    sse_token = token_resp["sse_token"]
+    assert token_resp["expires_in_seconds"] == 60
+
+    # 2. Verify token claims
+    payload = verify_sse_token(sse_token)
+    assert payload is not None
+    assert payload["sub"] == "Analyst User"
+    assert payload["role"] == "analyst"
+
+    # 3. Call sse_events_endpoint with valid token -> returns StreamingResponse
+    req = Request({"type": "http", "method": "GET", "url": "http://testserver/events"})
+    resp = await sse_events_endpoint(request=req, token=sse_token, db=async_test_db)
+    assert resp.status_code == 200
+    assert resp.media_type == "text/event-stream"
+
+    # 4. First frame from generator is connected acknowledgment
+    first_frame = await anext(resp.body_iterator)
+    assert "connected" in first_frame
+
+    # 5. Invalid token fails with 401
+    with pytest.raises(HTTPException) as exc_bad:
+        await sse_events_endpoint(request=req, token="invalid.token", db=async_test_db)
+    assert exc_bad.value.status_code == 401
+
+    # 6. In production without token or key fails with 401
+    monkeypatch.setattr(settings, "app_env", "production")
+    with pytest.raises(HTTPException) as exc_unauth:
+        await sse_events_endpoint(request=req, token=None, db=async_test_db)
+    assert exc_unauth.value.status_code == 401

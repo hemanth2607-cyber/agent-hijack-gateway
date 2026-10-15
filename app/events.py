@@ -11,12 +11,61 @@ Provides live streaming of gateway telemetry:
 from __future__ import annotations
 
 import asyncio
+import base64
+import hashlib
+import hmac
 import json
 import logging
+import secrets
 import time
-from typing import Any, AsyncGenerator, Dict, Set
+from typing import Any, AsyncGenerator, Dict, Optional, Set
+
+from app.config import settings
 
 logger = logging.getLogger("agent_shield.events")
+
+
+def issue_sse_token(user_name: str, role: str, ttl_seconds: float = 60.0) -> str:
+    """Issues a short-lived signed HMAC token for browser EventSource connections."""
+    now = time.time()
+    payload = {
+        "sub": user_name,
+        "role": role,
+        "exp": now + ttl_seconds,
+        "type": "sse",
+        "nonce": secrets.token_hex(16),
+    }
+    payload_json = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    payload_b64 = base64.urlsafe_b64encode(payload_json.encode("utf-8")).decode("ascii").rstrip("=")
+    key = getattr(settings.secret_key, "get_secret_value", lambda: settings.secret_key)()
+    if not isinstance(key, bytes):
+        key = str(key).encode("utf-8")
+    sig = hmac.new(key, payload_b64.encode("utf-8"), hashlib.sha256).hexdigest()
+    return f"{payload_b64}.{sig}"
+
+
+def verify_sse_token(token: str) -> Optional[Dict[str, Any]]:
+    """Validates HMAC signature and expiry of an SSE ticket token."""
+    parts = token.strip().split(".")
+    if len(parts) != 2:
+        return None
+    payload_b64, sig = parts
+    key = getattr(settings.secret_key, "get_secret_value", lambda: settings.secret_key)()
+    if not isinstance(key, bytes):
+        key = str(key).encode("utf-8")
+    expected_sig = hmac.new(key, payload_b64.encode("utf-8"), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(sig, expected_sig):
+        return None
+    try:
+        padded = payload_b64 + "=" * (-len(payload_b64) % 4)
+        payload = json.loads(base64.urlsafe_b64decode(padded.encode("ascii")).decode("utf-8"))
+        if payload.get("type") != "sse":
+            return None
+        if time.time() > payload.get("exp", 0):
+            return None
+        return payload
+    except Exception:
+        return None
 
 
 class EventBroadcaster:

@@ -12,7 +12,7 @@ import logging
 import os
 import time
 from typing import Any, AsyncGenerator, Dict, List, Optional
-from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -20,7 +20,7 @@ from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import KNOWN_DEMO_KEYS, settings
-from app.events import event_broadcaster
+from app.events import event_broadcaster, issue_sse_token, verify_sse_token
 from app.db import (
     ApiKeyModel,
     ApprovalModel,
@@ -630,20 +630,38 @@ async def get_log_by_request_id_root(
 
 @app.get(
     "/metrics",
-    summary="Prometheus & Operational Telemetry Metrics (Unauthenticated Internal Scrape)",
+    summary="Prometheus & Operational Telemetry Metrics",
     tags=["Monitoring & Events"],
 )
 async def get_metrics_endpoint(
+    request: Request,
     db: AsyncSession = Depends(get_db),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
+    authorization: Optional[str] = Header(None, alias="Authorization"),
 ) -> PlainTextResponse:
     """Exposes gateway operational metrics in Prometheus plaintext format.
 
-    Authentication & Network Architecture:
-    - Auth: Unauthenticated to support standard Prometheus / OpenTelemetry pull scraping
-      without requiring credential injection into scraper agents.
-    - Security Boundary: In production, access must be restricted to internal VPC / cluster pod
-      CIDRs via ingress network policies, reverse proxy rules, or firewall filters.
+    Authentication & Security Boundary:
+    - In development (APP_ENV=development): Unauthenticated access is permitted for local monitoring/testing.
+    - In production/staging (APP_ENV!=development): Requires authentication with 'analyst' or 'admin' role
+      via X-API-Key or Authorization Bearer header.
     """
+    if settings.app_env != "development":
+        key = x_api_key if isinstance(x_api_key, str) else None
+        if not key and isinstance(authorization, str):
+            if authorization.startswith("Bearer "):
+                key = authorization[7:].strip()
+            elif authorization.startswith("ApiKey "):
+                key = authorization[7:].strip()
+            else:
+                key = authorization.strip()
+        user = await get_current_user(x_api_key=key, db=db)
+        if not user.has_role("analyst"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Metrics endpoint requires 'analyst' or 'admin' role in production",
+            )
+
     from sqlalchemy import func
     total_res = await db.execute(select(func.count(AuditLogModel.id)))
     total_reqs = total_res.scalar() or 0
@@ -698,9 +716,43 @@ async def create_key_endpoint(
 # -----------------------------------------------------------------
 # Real-Time Monitoring & Telemetry (SSE)
 # -----------------------------------------------------------------
+@app.post(
+    "/v1/events/token",
+    summary="Generate Short-Lived SSE Browser Ticket",
+    tags=["Monitoring & Events"],
+)
+@app.post("/events/token", include_in_schema=False)
+async def generate_sse_token_endpoint(
+    user: AuthenticatedUser = Depends(require_role("analyst")),
+) -> Dict[str, Any]:
+    """Generates a short-lived (60s) HMAC ticket allowing browser EventSource connections to /events.
+
+    Browser EventSource Usage:
+    ```javascript
+    // 1. Fetch short-lived ticket using API Key
+    const res = await fetch('/v1/events/token', {
+      method: 'POST',
+      headers: { 'X-API-Key': 'your_analyst_key' }
+    });
+    const { sse_token } = await res.json();
+
+    // 2. Open standard EventSource connection with ticket query param
+    const es = new EventSource('/events?token=' + encodeURIComponent(sse_token));
+    es.addEventListener('scan', (e) => console.log('Scan event:', JSON.parse(e.data)));
+    ```
+    """
+    token = issue_sse_token(user_name=user.name, role=user.role, ttl_seconds=60.0)
+    return {
+        "sse_token": token,
+        "token_type": "Bearer",
+        "expires_in_seconds": 60,
+        "stream_url": f"/events?token={token}",
+    }
+
+
 @app.get(
     "/events",
-    summary="Real-Time Server-Sent Events (SSE) Stream (Browser-Accessible)",
+    summary="Real-Time Server-Sent Events (SSE) Stream",
     tags=["Monitoring & Events"],
     responses={
         200: {
@@ -715,15 +767,54 @@ async def create_key_endpoint(
     tags=["Monitoring & Events"],
     include_in_schema=False,
 )
-async def sse_events_endpoint(request: Request):
+async def sse_events_endpoint(
+    request: Request,
+    token: Optional[str] = Query(None, description="Short-lived HMAC ticket for browser EventSource"),
+    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
+    authorization: Optional[str] = Header(None, alias="Authorization"),
+    db: AsyncSession = Depends(get_db),
+):
     """Subscribes to live gateway security events (scans, tool calls, approvals, circuit breaker).
 
-    Authentication & Client Architecture:
-    - Auth: Accessible without custom headers to allow native HTML5 EventSource browser connections
-      from real-time SOC monitoring dashboards.
-    - Security Boundary: Broadcast payloads contain only sanitized event metadata with secrets redacted.
-      For production multi-tenant environments, query-parameter token auth (`?token=...`) can be enabled.
+    Connection Methods:
+    1. Browser EventSource (Recommended for Web UI):
+       Request a ticket from POST /v1/events/token, then connect to /events?token=<ticket>.
+    2. Direct Streaming Fetch (Recommended for Services & Node.js):
+       Connect with X-API-Key or Authorization Bearer header:
+       `const resp = await fetch('/events', { headers: { 'X-API-Key': key } });`
     """
+    # Verify authentication
+    is_authenticated = False
+    if token and isinstance(token, str):
+        payload = verify_sse_token(token)
+        if payload:
+            is_authenticated = True
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired SSE ticket",
+            )
+    else:
+        key = x_api_key if isinstance(x_api_key, str) else None
+        if not key and isinstance(authorization, str):
+            if authorization.startswith("Bearer "):
+                key = authorization[7:].strip()
+            elif authorization.startswith("ApiKey "):
+                key = authorization[7:].strip()
+            else:
+                key = authorization.strip()
+        if key:
+            user = await get_current_user(x_api_key=key, db=db)
+            if user:
+                is_authenticated = True
+
+    if not is_authenticated:
+        if settings.app_env != "development":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required for SSE stream. Provide ?token=<ticket> or X-API-Key header.",
+            )
+
     queue = event_broadcaster.subscribe()
     return StreamingResponse(
         event_broadcaster.event_generator(queue),
