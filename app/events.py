@@ -25,41 +25,51 @@ from app.config import settings
 logger = logging.getLogger("agent_shield.events")
 
 
+def _get_sse_signing_key() -> bytes:
+    """Derives a dedicated cryptographic subkey for SSE tokens to ensure domain separation."""
+    master = getattr(settings.secret_key, "get_secret_value", lambda: settings.secret_key)()
+    if not isinstance(master, bytes):
+        master = str(master).encode("utf-8")
+    return hmac.new(master, b"AgentShield:DomainSeparation:SSE-Token:v1", hashlib.sha256).digest()
+
+
 def issue_sse_token(user_name: str, role: str, ttl_seconds: float = 60.0) -> str:
-    """Issues a short-lived signed HMAC token for browser EventSource connections."""
+    """Issues a short-lived signed HMAC token for browser EventSource connections with domain separation."""
     now = time.time()
     payload = {
         "sub": user_name,
         "role": role,
         "exp": now + ttl_seconds,
         "type": "sse",
+        "domain": "agent_shield_sse_stream",
         "nonce": secrets.token_hex(16),
     }
     payload_json = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     payload_b64 = base64.urlsafe_b64encode(payload_json.encode("utf-8")).decode("ascii").rstrip("=")
-    key = getattr(settings.secret_key, "get_secret_value", lambda: settings.secret_key)()
-    if not isinstance(key, bytes):
-        key = str(key).encode("utf-8")
-    sig = hmac.new(key, payload_b64.encode("utf-8"), hashlib.sha256).hexdigest()
-    return f"{payload_b64}.{sig}"
+    signing_key = _get_sse_signing_key()
+    message_to_sign = b"ahs_sse_v1:" + payload_b64.encode("utf-8")
+    sig = hmac.new(signing_key, message_to_sign, hashlib.sha256).hexdigest()
+    return f"sse_tok_{payload_b64}.{sig}"
 
 
 def verify_sse_token(token: str) -> Optional[Dict[str, Any]]:
-    """Validates HMAC signature and expiry of an SSE ticket token."""
-    parts = token.strip().split(".")
+    """Validates HMAC signature and expiry of a domain-separated SSE ticket token."""
+    if not token.startswith("sse_tok_"):
+        return None
+    token_body = token[len("sse_tok_"):].strip()
+    parts = token_body.split(".")
     if len(parts) != 2:
         return None
     payload_b64, sig = parts
-    key = getattr(settings.secret_key, "get_secret_value", lambda: settings.secret_key)()
-    if not isinstance(key, bytes):
-        key = str(key).encode("utf-8")
-    expected_sig = hmac.new(key, payload_b64.encode("utf-8"), hashlib.sha256).hexdigest()
+    signing_key = _get_sse_signing_key()
+    message_to_sign = b"ahs_sse_v1:" + payload_b64.encode("utf-8")
+    expected_sig = hmac.new(signing_key, message_to_sign, hashlib.sha256).hexdigest()
     if not hmac.compare_digest(sig, expected_sig):
         return None
     try:
         padded = payload_b64 + "=" * (-len(payload_b64) % 4)
         payload = json.loads(base64.urlsafe_b64decode(padded.encode("ascii")).decode("utf-8"))
-        if payload.get("type") != "sse":
+        if payload.get("type") != "sse" or payload.get("domain") != "agent_shield_sse_stream":
             return None
         if time.time() > payload.get("exp", 0):
             return None
