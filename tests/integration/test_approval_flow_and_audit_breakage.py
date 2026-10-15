@@ -230,7 +230,8 @@ async def test_extended_phase5_endpoints(flow_client: AsyncClient):
     pol_data = res_pol.json()
 
     # Update policy version
-    pol_data["version"] = 2
+    new_version = pol_data["version"] + 1
+    pol_data["version"] = new_version
     res_update = await flow_client.put(
         "/policies/researcher_agent",
         headers={"X-API-Key": flow_client.analyst_key},
@@ -247,7 +248,7 @@ async def test_extended_phase5_endpoints(flow_client: AsyncClient):
     assert res_hist.status_code == 200
     hist_data = res_hist.json()
     assert hist_data["versions_count"] >= 1
-    assert hist_data["history"][0]["version"] == 2
+    assert hist_data["history"][0]["version"] == new_version
 
     # 3. GET /logs/{request_id}
     # Log an entry first
