@@ -48,8 +48,8 @@ async def test_pipeline_benign_calculation(async_test_db: AsyncSession):
     assert resp.risk_score < 40.0
     assert len(resp.tool_calls) == 1
     assert resp.tool_calls[0].tool_name == "calculator"
-    assert resp.tool_calls[0].verdict == "ALLOW"
-    assert resp.tool_calls[0].capability_token is not None
+    assert resp.tool_calls[0].capability_token is None
+    assert "capability_token" not in resp.tool_calls[0].model_dump()
 
     # Verify audit chain integrity
     audit_verify = await verify_audit_chain(async_test_db)

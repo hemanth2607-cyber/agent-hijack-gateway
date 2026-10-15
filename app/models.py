@@ -117,7 +117,7 @@ class ToolCallDecision(BaseModel):
     args: Dict[str, Any]
     verdict: Literal["ALLOW", "REQUIRE_APPROVAL", "DENY"]
     reason_codes: List[str]
-    capability_token: Optional[str] = None  # Populated only if ALLOW
+    capability_token: Optional[str] = Field(default=None, exclude=True)  # Never returned in /chat responses
     approval_id: Optional[str] = None  # Populated only if REQUIRE_APPROVAL
 
 

