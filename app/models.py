@@ -196,6 +196,7 @@ class AuditVerifyResponse(BaseModel):
     first_broken_link_id: Optional[int] = None
     expected_hash: Optional[str] = None
     actual_hash: Optional[str] = None
+    head_hash: Optional[str] = None
     message: str
 
 

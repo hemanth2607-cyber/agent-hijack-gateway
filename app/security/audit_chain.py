@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import datetime
 import hashlib
+import hmac
 import json
 from typing import Any, Dict, List, Optional
 from sqlalchemy import desc, select
@@ -20,11 +21,14 @@ from app.db import AuditLogModel
 from app.models import AuditVerifyResponse
 
 
-def compute_record_hash(prev_hash: str, payload_data: Dict[str, Any]) -> str:
-    """Computes SHA-256 hash across previous hash and canonical sorted JSON."""
+def compute_record_hash(
+    prev_hash: str, payload_data: Dict[str, Any], secret_key: Optional[str] = None
+) -> str:
+    """Computes HMAC-SHA256 hash across previous hash and canonical sorted JSON using server secret."""
+    key = (secret_key or settings.secret_key).encode("utf-8")
     canonical_json = json.dumps(payload_data, sort_keys=True, separators=(",", ":"))
-    content_to_hash = f"{prev_hash}|{canonical_json}"
-    return hashlib.sha256(content_to_hash.encode("utf-8")).hexdigest()
+    content_to_hash = f"{prev_hash}|{canonical_json}".encode("utf-8")
+    return hmac.new(key, content_to_hash, hashlib.sha256).hexdigest()
 
 
 import asyncio
@@ -114,6 +118,7 @@ async def verify_audit_chain(db: AsyncSession) -> AuditVerifyResponse:
         return AuditVerifyResponse(
             is_valid=True,
             total_records=0,
+            head_hash=settings.audit_chain_genesis_hash,
             message="Audit log is empty; genesis state valid.",
         )
 
@@ -128,6 +133,7 @@ async def verify_audit_chain(db: AsyncSession) -> AuditVerifyResponse:
                 first_broken_link_id=record.id,
                 expected_hash=expected_prev_hash,
                 actual_hash=record.prev_hash,
+                head_hash=records[-1].current_hash,
                 message=f"Audit chain broken at record ID {record.id}: prev_hash mismatch.",
             )
 
@@ -140,6 +146,7 @@ async def verify_audit_chain(db: AsyncSession) -> AuditVerifyResponse:
                 is_valid=False,
                 total_records=len(records),
                 first_broken_link_id=record.id,
+                head_hash=records[-1].current_hash,
                 message=f"Audit chain corrupted at record ID {record.id}: JSON deserialization failure.",
             )
 
@@ -168,6 +175,7 @@ async def verify_audit_chain(db: AsyncSession) -> AuditVerifyResponse:
                 first_broken_link_id=record.id,
                 expected_hash=recomputed_hash,
                 actual_hash=record.current_hash,
+                head_hash=records[-1].current_hash,
                 message=f"Audit record ID {record.id} content was tampered with (hash mismatch).",
             )
 
@@ -176,5 +184,6 @@ async def verify_audit_chain(db: AsyncSession) -> AuditVerifyResponse:
     return AuditVerifyResponse(
         is_valid=True,
         total_records=len(records),
+        head_hash=expected_prev_hash,
         message="Cryptographic audit chain fully verified. 0 broken links detected.",
     )
