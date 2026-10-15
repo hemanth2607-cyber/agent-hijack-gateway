@@ -1,0 +1,28 @@
+services:
+  tether:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tether-agent-shield:latest
+    container_name: tether-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DEMO_MODE=true
+      - SECRET_KEY=production-test-secret-key-must-be-32-chars-long-min
+      - API_KEYS_SALT=production-test-salt-string-minimum-16-chars-secure
+      - JUDGE_API_KEY=sk_judge_prod_docker_compose_test_client_key_32chars
+      - DATABASE_URL=sqlite+aiosqlite:////app/data/shield.db
+      - PORT=8000
+    volumes:
+      - tether-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  tether-data:

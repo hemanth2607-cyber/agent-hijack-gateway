@@ -339,3 +339,53 @@ python eval/defense_in_depth_eval.py
 | Abusive Escapes (Allowed):       1                |
 +---------------------------------------------------+
 ```
+
+---
+
+## 5. Production Deployment to Render & Docker Guide
+
+Tether is configured for zero-setup deployment on [Render](https://render.com) as a Dockerized web service.
+
+### Option A: 1-Click Render Blueprint (`render.yaml`)
+1. Fork or push this repository to your GitHub account: `https://github.com/hemanth2607-cyber/agent-hijack-gateway`.
+2. In the Render Dashboard, click **New +** -> **Blueprint**.
+3. Select this repository. Render automatically reads `render.yaml`, configures the Docker runtime, generates high-entropy cryptographic secrets, sets up the `/healthz` health check, and mounts the persistent data disk.
+4. Click **Apply**. Once built, the live landing page is served at `https://<your-service>.onrender.com/` and the interactive console is at `https://<your-service>.onrender.com/playground`.
+
+### Option B: Manual Render Docker Web Service
+1. In Render, select **New +** -> **Web Service**.
+2. Connect your repository.
+3. Configure settings:
+   - **Environment:** `Docker` (Dockerfile: `./Dockerfile`)
+   - **Region:** Any (e.g. Oregon)
+   - **Health Check Path:** `/healthz`
+   - **Plan:** Starter (or Free)
+4. Add the following **Environment Variables**:
+   | Variable | Value / Description |
+   | :--- | :--- |
+   | `APP_ENV` | `production` |
+   | `DEMO_MODE` | `true` |
+   | `SECRET_KEY` | High-entropy string (min 32 chars). Generate via `python -c "import secrets; print(secrets.token_hex(32))"` |
+   | `API_KEYS_SALT` | High-entropy string (min 16 chars). Generate via `python -c "import secrets; print(secrets.token_hex(16))"` |
+   | `JUDGE_API_KEY` | Client-role judge key (min 32 chars). Generate via `python -m app.create_judge_key` |
+   | `DATABASE_URL` | `sqlite+aiosqlite:////app/data/shield.db` |
+   | `DEMO_VIDEO_URL` | *(Optional)* YouTube or Vimeo embed URL for the landing page hero video |
+5. **Persistent Storage (Recommended):** Add a persistent disk named `tether-data`, Mount Path: `/app/data`, Size: `1 GB`.
+   > **Note on Render Free Tier:** On Render Free tier, disks are ephemeral across restarts. Tether's lifespan handler automatically bootstraps the Judge API key and resets demo agents on every container boot, ensuring judges have zero setup even without a persistent disk.
+
+### Option C: Local Docker Testing
+Build and run the production image locally using Docker Compose:
+```bash
+docker compose up --build
+```
+Open [http://localhost:8000](http://localhost:8000) for the Landing Page or [http://localhost:8000/playground](http://localhost:8000/playground) for the Playground.
+
+### Verification Checklist After Deploy
+- [ ] `GET /healthz` returns `{"status": "healthy", "service": "Agent Hijack Shield"}`.
+- [ ] `GET /v1/public/config` returns `is_simulated: true` with a safe client-role key.
+- [ ] `GET /v1/public/audit/verify` returns `is_valid: true`.
+- [ ] `GET /playground` loads the interactive console.
+- [ ] Run Scenario 5 (Indirect Injection) and verify that the unshielded agent attempts exfiltration while Tether escalates to `REQUIRE_APPROVAL`.
+- [ ] Approve the pending tool call in the Approvals tab using the judge key.
+- [ ] Click **Verify Hash Chain** to confirm HMAC-SHA256 forward links across the audit log.
+

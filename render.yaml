@@ -1,0 +1,39 @@
+# Render Blueprint for Tether // Agent Hijack Shield
+# Deployable as a single-instance Docker Web Service with persistent SQLite or graceful zero-setup recovery.
+#
+# CRITICAL ARCHITECTURAL NOTE ON RENDER DISK PERSISTENCE:
+# Render Free tier instances use ephemeral container storage. If deployed on Free tier without a persistent disk,
+# the SQLite database is re-created upon container cold start or redeploy.
+# Tether handles this zero-setup gracefully:
+# 1. On container boot, the lifespan bootstrap checks for JUDGE_API_KEY and seeds the client key and policy schemas.
+# 2. The public frontend automatically retrieves the active judge credentials via GET /v1/public/config.
+# 3. For persistent production audit logs, Render Starter tier (or higher) attaches the persistent 1GB disk defined below,
+#    or you can configure DATABASE_URL to point to a managed PostgreSQL database.
+
+services:
+  - type: web
+    name: tether-agent-shield
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: Dockerfile
+    healthCheckPath: /healthz
+    disk:
+      name: tether-data
+      mountPath: /app/data
+      sizeGB: 1
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: DEMO_MODE
+        value: "true"
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:////app/data/shield.db
+      - key: SECRET_KEY
+        generateValue: true
+      - key: API_KEYS_SALT
+        generateValue: true
+      - key: JUDGE_API_KEY
+        generateValue: true
+      - key: DEMO_VIDEO_URL
+        value: ""
