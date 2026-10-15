@@ -127,35 +127,46 @@ async def test_startup_demo_key_refusal_when_not_development(async_test_db: Asyn
 
 
 @pytest.mark.asyncio
-async def test_app_lifespan_refuses_boot_with_production_and_demo_keys(monkeypatch):
-    """Directly boots the FastAPI lifespan with APP_ENV=production and asserts ValueError is raised."""
+async def test_app_lifespan_refuses_boot_with_production_and_demo_keys(tmp_path, monkeypatch):
+    """Directly boots the FastAPI lifespan with APP_ENV=production using an isolated temporary DB."""
+    import app.main as app_main
+    import app.db as app_db
     from app.main import app, lifespan
     from app.config import settings, KNOWN_DEMO_KEYS
     from app.security.auth import hash_api_key
-    from app.db import ApiKeyModel, engine
-    from sqlalchemy import select
-    from sqlalchemy.ext.asyncio import AsyncSession
+    from app.db import Base, ApiKeyModel
+    from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
+    temp_db_file = tmp_path / "temp_lifespan.sqlite"
+    temp_engine = create_async_engine(f"sqlite+aiosqlite:///{temp_db_file}", echo=False)
+
+    monkeypatch.setattr(app_main, "engine", temp_engine)
+    monkeypatch.setattr(app_db, "engine", temp_engine)
     monkeypatch.setattr(settings, "app_env", "production")
     monkeypatch.setattr(settings, "secret_key", "sec" * 20)
     monkeypatch.setattr(settings, "api_keys_salt", "salt" * 8)
 
-    async with AsyncSession(engine) as session:
-        demo_key = KNOWN_DEMO_KEYS[0]
-        h = hash_api_key(demo_key)
-        res = await session.execute(select(ApiKeyModel).where(ApiKeyModel.key_hash == h))
-        if not res.scalar_one_or_none():
-            entry = ApiKeyModel(
-                key_hash=h,
-                name="Demo Key In DB",
-                role="admin",
-            )
-            session.add(entry)
-            await session.commit()
+    # Create tables in temp DB
+    async with temp_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
-    with pytest.raises(ValueError, match="CRITICAL: Found .* hardcoded DEMO API key.*Refusing to start because APP_ENV='production'"):
-        async with lifespan(app):
-            pass
+    # Insert single demo key into temp DB
+    async with AsyncSession(temp_engine) as session:
+        demo_key = KNOWN_DEMO_KEYS[0]
+        entry = ApiKeyModel(
+            key_hash=hash_api_key(demo_key),
+            name="Demo Key In Temp DB",
+            role="admin",
+        )
+        session.add(entry)
+        await session.commit()
+
+    try:
+        with pytest.raises(ValueError, match="CRITICAL: Found .* hardcoded DEMO API key.*Refusing to start because APP_ENV='production'"):
+            async with lifespan(app):
+                pass
+    finally:
+        await temp_engine.dispose()
 
 
 # -------------------------------------------------------------
