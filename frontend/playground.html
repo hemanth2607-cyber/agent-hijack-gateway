@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tether Playground // Agent Hijack Shield Interactive Console</title>
+  <meta name="description" content="Interactive security console to evaluate Tether's defense-in-depth protection against prompt injection, unprompted tool actions, and data exfiltration.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/playground.css">
+</head>
+<body>
+  <!-- Simulation Notice Banner -->
+  <div class="simulation-banner" id="simulationBanner">
+    <span class="pulse-indicator"></span>
+    <span class="banner-text">SIMULATION MODE ACTIVE: All agents, tools, emails, and financial actions are strictly sandboxed. No real operations occur.</span>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="console-header">
+    <div class="header-brand">
+      <a href="/" class="brand-link" title="Return to Landing Overview">
+        <span class="brand-icon">⬢</span>
+        <span class="brand-title">TETHER</span>
+        <span class="brand-sub">// AGENT HIJACK SHIELD</span>
+      </a>
+    </div>
+
+    <div class="header-status">
+      <div class="status-chip" id="activeAgentChip">
+        <span class="chip-label">AGENT:</span>
+        <span class="chip-val" id="activeAgentLabel">MailBot</span>
+      </div>
+      <div class="status-chip chip-shield-on" id="headerShieldChip">
+        <span class="chip-dot"></span>
+        <span class="chip-val" id="headerShieldVal">SHIELD ACTIVE</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-sm btn-tour" id="btnTour">⚡ 60s Guided Tour</button>
+      <button class="btn btn-sm btn-reset" id="btnDemoReset" title="Reset pending approvals, session taint, and circuit breaker">↺ Reset Demo</button>
+      <a href="/" class="btn btn-sm btn-secondary">← Back to Overview</a>
+    </div>
+  </header>
+
+  <!-- Live Telemetry Strip -->
+  <section class="telemetry-strip" aria-label="Live System Telemetry">
+    <div class="telemetry-cell">
+      <span class="cell-label">HELDOUT TEST RECALL</span>
+      <span class="cell-val color-green">95.65%</span>
+      <span class="cell-sub">44/46 Detected</span>
+    </div>
+    <div class="telemetry-cell">
+      <span class="cell-label">ADAPTIVE ATTACKS</span>
+      <span class="cell-val color-amber">9.09%</span>
+      <span class="cell-sub">Untuned Baseline (2/22)</span>
+    </div>
+    <div class="telemetry-cell">
+      <span class="cell-label">DEFENSE-IN-DEPTH</span>
+      <span class="cell-val color-green">20/20</span>
+      <span class="cell-sub">1 Known Escape (abuse_20)</span>
+    </div>
+    <div class="telemetry-cell">
+      <span class="cell-label">AUDIT INTEGRITY</span>
+      <span class="cell-val" id="telemetryAuditStatus">UNVERIFIED</span>
+      <span class="cell-sub" id="telemetryAuditSub">SHA256 Hash Chain</span>
+    </div>
+    <div class="telemetry-cell">
+      <span class="cell-label">SSE FEED</span>
+      <span class="cell-val color-green" id="telemetrySseStatus">CONNECTING</span>
+      <span class="cell-sub" id="telemetrySseSub">Event Stream</span>
+    </div>
+  </section>
+
+  <!-- Main Grid Workspace -->
+  <main class="console-body">
+    <!-- Left Column: Controls & Input Deck -->
+    <section class="deck-panel control-deck">
+      <div class="panel-header">
+        <span class="panel-tag">DECK 01</span>
+        <h2 class="panel-title">CONTROL & INJECTION DECK</h2>
+      </div>
+
+      <!-- Agent Selection -->
+      <div class="control-group" id="stepAgent">
+        <label class="control-label" for="agentSelect">TARGET AI AGENT</label>
+        <div class="agent-pills" id="agentPills">
+          <button class="pill-btn active" data-agent="default_agent">MailBot</button>
+          <button class="pill-btn" data-agent="researcher_agent">Researcher</button>
+          <button class="pill-btn" data-agent="coder_agent">CoderBot</button>
+          <button class="pill-btn" data-agent="finance_agent">FinanceBot</button>
+        </div>
+        <div class="policy-summary-box">
+          <span class="summary-label">AGENT CAPABILITIES &amp; POLICY:</span>
+          <p class="summary-text" id="policySummaryText">Allowed: calculator, read_clock, search_docs, summarize_text, read_file, send_email | Approval Required: write_file, http_request, transfer_funds</p>
+        </div>
+      </div>
+
+      <!-- Shield Master Switch -->
+      <div class="control-group" id="stepShield">
+        <label class="control-label">GATEWAY SHIELD STATE</label>
+        <div class="shield-toggle-container">
+          <button class="tactile-switch switch-on" id="shieldToggle" aria-pressed="true">
+            <span class="switch-handle"></span>
+            <span class="switch-text-on">SHIELD ON (GATED)</span>
+            <span class="switch-text-off">SHIELD OFF (RAW)</span>
+          </button>
+          <span class="toggle-hint" id="shieldToggleHint">Tether multi-layer gate active: inbound scan, taint escalation, permission checks, audit logging.</span>
+        </div>
+      </div>
+
+      <!-- Scenario Selector -->
+      <div class="control-group" id="stepScenario">
+        <div class="scenario-header-row">
+          <label class="control-label" for="scenarioSelect">PRESET SCENARIOS (16 BENCHMARKS)</label>
+          <div class="category-filters" id="categoryFilters">
+            <button class="cat-btn active" data-cat="all">All</button>
+            <button class="cat-btn" data-cat="safe">Safe (3)</button>
+            <button class="cat-btn" data-cat="detector">Detector (7)</button>
+            <button class="cat-btn" data-cat="permission_layer">Permission (4)</button>
+            <button class="cat-btn" data-cat="known_limitations">Limitations (2)</button>
+          </div>
+        </div>
+        <select class="scenario-dropdown" id="scenarioSelect" aria-label="Select preset scenario">
+          <!-- Populated dynamically via JS -->
+        </select>
+
+        <!-- Scenario Context / Explanation Card -->
+        <div class="scenario-context-card" id="scenarioContextCard">
+          <div class="context-card-top">
+            <span class="scenario-badge" id="scenBadge">CATEGORY</span>
+            <span class="expected-badge" id="scenExpected">EXPECTED: ALLOW</span>
+          </div>
+          <h3 class="context-title" id="scenTitle">Select a scenario to evaluate</h3>
+          <p class="context-why" id="scenWhy">Scenario explanation and security implications will appear here.</p>
+        </div>
+      </div>
+
+      <!-- User Message Input -->
+      <div class="control-group">
+        <label class="control-label" for="userPromptInput">USER PROMPT (UNTRUSTED / ADVERSARIAL)</label>
+        <textarea class="console-textarea" id="userPromptInput" rows="3" placeholder="Enter user message or select a preset scenario..."></textarea>
+      </div>
+
+      <!-- External Document Context (Optional) -->
+      <div class="control-group">
+        <div class="label-with-badge">
+          <label class="control-label" for="untrustedDocInput">EXTERNAL DOCUMENT / CONTEXT (INDIRECT INJECTION)</label>
+          <span class="badge-subtle">PROVENANCE: EXTERNAL (TAINT SOURCE)</span>
+        </div>
+        <textarea class="console-textarea doc-textarea" id="untrustedDocInput" rows="3" placeholder="Optional external document content (simulating poisoned web page, email attachment, or RAG snippet)..."></textarea>
+      </div>
+
+      <!-- Execution Action Buttons -->
+      <div class="execution-actions" id="stepExecute">
+        <button class="btn btn-primary btn-run" id="btnRun">
+          <span class="btn-icon">▶</span>
+          <span class="btn-label" id="btnRunLabel">Run With Current Shield</span>
+        </button>
+        <button class="btn btn-secondary btn-compare" id="btnSideBySide">
+          <span class="btn-icon">⇄</span>
+          <span class="btn-label">Run Side-by-Side (Shield OFF vs ON)</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Right Column: Results Deck & Comparison -->
+    <section class="deck-panel results-deck">
+      <div class="panel-header">
+        <span class="panel-tag">DECK 02</span>
+        <h2 class="panel-title">VERDICT &amp; EXECUTION RESULTS</h2>
+        <div class="deck-mode-indicator" id="deckModeIndicator">COMPARISON VIEW</div>
+      </div>
+
+      <!-- Result Comparison Panels -->
+      <div class="comparison-grid" id="comparisonGrid">
+        <!-- Shield ON Panel (Gated) -->
+        <article class="result-card card-shield-on" id="panelShieldOn">
+          <div class="result-card-header">
+            <div class="header-left">
+              <span class="shield-indicator-dot on-dot"></span>
+              <span class="card-title">SHIELD ON (TETHER GATED)</span>
+            </div>
+            <span class="verdict-badge badge-pending" id="shieldOnVerdict">STANDBY</span>
+          </div>
+
+          <div class="result-card-body">
+            <div class="metric-row">
+              <div class="metric-item">
+                <span class="m-label">RISK SCORE</span>
+                <span class="m-val" id="shieldOnRisk">—</span>
+              </div>
+              <div class="metric-item">
+                <span class="m-label">INTERCEPTING LAYER</span>
+                <span class="m-val" id="shieldOnLayer">—</span>
+              </div>
+              <div class="metric-item">
+                <span class="m-label">LATENCY</span>
+                <span class="m-val" id="shieldOnLatency">—</span>
+              </div>
+            </div>
+
+            <div class="response-section">
+              <span class="section-title" id="shieldOnResponseTitle">Agent response</span>
+              <div class="response-box" id="shieldOnResponseText">Click "Run" or "Run Side-by-Side" to evaluate this prompt through Tether gateway.</div>
+            </div>
+
+            <div class="details-section">
+              <span class="section-title">DETECTOR FINDINGS / RULES</span>
+              <div class="findings-list" id="shieldOnFindings">
+                <span class="empty-state">No findings recorded.</span>
+              </div>
+            </div>
+
+            <div class="details-section">
+              <span class="section-title">TOOL INVOCATION DECISIONS</span>
+              <div class="tools-list" id="shieldOnTools">
+                <span class="empty-state">No tool invocations proposed.</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Shield OFF Panel (Raw / Vulnerable) -->
+        <article class="result-card card-shield-off" id="panelShieldOff">
+          <div class="result-card-header">
+            <div class="header-left">
+              <span class="shield-indicator-dot off-dot"></span>
+              <span class="card-title">SHIELD OFF (UNPROTECTED AGENT)</span>
+            </div>
+            <span class="verdict-badge badge-neutral" id="shieldOffVerdict">STANDBY</span>
+          </div>
+
+          <div class="result-card-body">
+            <div class="metric-row">
+              <div class="metric-item">
+                <span class="m-label">PROTECTION</span>
+                <span class="m-val color-red">NONE</span>
+              </div>
+              <div class="metric-item">
+                <span class="m-label">EXECUTION STATUS</span>
+                <span class="m-val" id="shieldOffStatus">Raw Execution</span>
+              </div>
+              <div class="metric-item">
+                <span class="m-label">LATENCY</span>
+                <span class="m-val" id="shieldOffLatency">—</span>
+              </div>
+            </div>
+
+            <div class="response-section">
+              <span class="section-title">Unshielded Agent Execution</span>
+              <div class="response-box" id="shieldOffResponseText">Side-by-side mode runs the request against the raw unprotected model to verify baseline behavior.</div>
+            </div>
+
+            <div class="details-section">
+              <span class="section-title">TOOL ACTIONS ATTEMPTED / DISPATCHED</span>
+              <div class="tools-list" id="shieldOffTools">
+                <span class="empty-state">No unshielded tools recorded.</span>
+              </div>
+            </div>
+
+            <div class="details-section">
+              <span class="section-title">EXPLOIT OUTCOME</span>
+              <div class="response-box text-sm" id="shieldOffOutcomeText">Select a scenario to view expected unshielded exploit outcome.</div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Human In The Loop Approvals Section -->
+      <section class="sub-panel approvals-subpanel" id="stepApproval">
+        <div class="subpanel-header">
+          <div class="header-left">
+            <span class="subpanel-icon">⚖</span>
+            <h3 class="subpanel-title">HUMAN-IN-THE-LOOP APPROVAL WORKFLOW</h3>
+          </div>
+          <span class="badge-count" id="pendingApprovalsCount">0 PENDING</span>
+        </div>
+        <p class="subpanel-desc">When a high-risk tool action or tainted session requires confirmation, Tether halts execution and issues a tamper-evident pending approval.</p>
+        <div class="approvals-container" id="approvalsList">
+          <div class="empty-state-card">No pending approvals. Run Scenario 5 (Indirect Injection) or Scenario 14 (High-Value Transfer) to generate an approval checkpoint.</div>
+        </div>
+      </section>
+
+      <!-- Audit Chain Verification Section -->
+      <section class="sub-panel audit-subpanel" id="stepAudit">
+        <div class="subpanel-header">
+          <div class="header-left">
+            <span class="subpanel-icon">⛓</span>
+            <h3 class="subpanel-title">CRYPTOGRAPHIC AUDIT LOG INTEGRITY</h3>
+          </div>
+          <button class="btn btn-sm btn-verify" id="btnVerifyAudit">Verify Hash Chain</button>
+        </div>
+        <div class="audit-verify-result" id="auditVerifyBox">
+          <div class="verify-status-row">
+            <span class="status-badge" id="auditBadge">STANDBY</span>
+            <span class="status-msg" id="auditMsg">Click "Verify Hash Chain" to validate HMAC-SHA256 forward links across all audit entries.</span>
+          </div>
+          <div class="verify-meta" id="auditMeta">Head Hash: — | Total Records: —</div>
+        </div>
+      </section>
+
+      <!-- Live Event Feed (SSE) -->
+      <section class="sub-panel event-feed-subpanel">
+        <div class="subpanel-header">
+          <div class="header-left">
+            <span class="pulse-indicator-small"></span>
+            <h3 class="subpanel-title">LIVE GATEWAY AUDIT STREAM (SSE)</h3>
+          </div>
+          <span class="stream-badge" id="sseBadge">CONNECTED</span>
+        </div>
+        <div class="feed-log" id="sseFeedLog">
+          <div class="feed-entry init">[SYSTEM] Live SSE channel initialized. Awaiting gateway security decisions...</div>
+        </div>
+      </section>
+
+      <!-- Collapsible Known Limitations & Honest Tradeoffs -->
+      <details class="limitations-details" id="stepLimitations">
+        <summary class="limitations-summary">
+          <span class="summary-left">
+            <span class="warning-icon">⚠</span>
+            <strong>KNOWN LIMITATIONS &amp; HONEST BENCHMARK TRADEOFFS</strong>
+          </span>
+          <span class="summary-toggle">EXPAND [＋]</span>
+        </summary>
+        <div class="limitations-content">
+          <div class="limitation-card">
+            <h4>1. Persona Adoption &amp; Subtle Roleplay (Adaptive Attack ad_05)</h4>
+            <p><strong>Observed Result:</strong> Bypasses regex heuristic detector (Verdict: ALLOW).</p>
+            <p><strong>Root Cause:</strong> Deceased grandmother roleplay framing contains no explicit system override tokens or violent threat signatures. Pure heuristic scanners miss subtle framing without semantic verification. Evaluated at 1/22 adaptive bypass.</p>
+          </div>
+          <div class="limitation-card">
+            <h4>2. Untainted Internal Exfiltration (Defense-in-Depth abuse_20)</h4>
+            <p><strong>Observed Result:</strong> Allowed if recipient is in @company.com and session has no external taint.</p>
+            <p><strong>Root Cause:</strong> Whitelisted internal recipients do not trigger permission denial unless the session has received external document taint. If a user voluntarily sends secrets internally, gateway treats it as authorized collaboration.</p>
+          </div>
+          <div class="limitation-card">
+            <h4>3. Gateway Latency Overhead</h4>
+            <p><strong>Observed Result:</strong> ~5ms - 15ms overhead per turn.</p>
+            <p><strong>Root Cause:</strong> Full regex evaluation, boundary neutralization, HMAC calculation, and database persistence occur synchronously before forwarding to model.</p>
+          </div>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <!-- Interactive Guided Tour Modal Overlay -->
+  <div class="tour-overlay hidden" id="tourOverlay">
+    <div class="tour-modal">
+      <div class="tour-header">
+        <span class="tour-step-tag" id="tourStepTag">STEP 1 OF 5</span>
+        <button class="tour-close-btn" id="tourCloseBtn" aria-label="Close tour">✕</button>
+      </div>
+      <h3 class="tour-step-title" id="tourStepTitle">Welcome to the 60-Second Guided Tour</h3>
+      <p class="tour-step-desc" id="tourStepDesc">Experience Tether's multi-layered defense in 5 rapid steps.</p>
+      <div class="tour-actions">
+        <button class="btn btn-sm btn-secondary" id="tourPrevBtn" disabled>Back</button>
+        <button class="btn btn-sm btn-primary" id="tourNextBtn">Next Step →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- External Script only (CSP strict compliance) -->
+  <script src="/static/playground.js"></script>
+</body>
+</html>
