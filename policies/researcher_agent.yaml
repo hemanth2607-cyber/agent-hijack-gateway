@@ -1,5 +1,5 @@
 agent_id: researcher_agent
-version: 4
+version: 5
 description: Knowledge extraction and web research agent
 allowed_tools:
 - web_fetch
