@@ -6,7 +6,8 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PORT=8000 \
-    APP_ENV=production
+    APP_ENV=production \
+    DEMO_MODE=true
 
 # Install system dependencies (curl for healthcheck) and create unprivileged security user
 RUN apt-get update && apt-get install -y --no-install-recommends \

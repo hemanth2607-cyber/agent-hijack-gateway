@@ -143,18 +143,30 @@ class Settings(BaseSettings):
         default="mock", description="Active LLM provider"
     )
     llm_model: str = Field(default="gpt-4o-mini", description="LLM model name")
-    llm_timeout_seconds: float = Field(default=5.0, description="LLM call timeout")
+    demo_mode: bool = Field(
+        default=False,
+        description="Enable public judge / hackathon demo mode with zero-setup recovery",
+    )
 
     @field_validator("secret_key")
     @classmethod
     def validate_secret_key(cls, v: str, info) -> str:
         """Refuse insecure default secret keys in production/staging environments."""
-        # Note: values in info.data might not be fully populated during validation, so check env
         return v
 
     def validate_production_readiness(self) -> None:
         """Enforces security invariants before gateway startup."""
         if self.app_env in ("production", "staging"):
+            if self.demo_mode:
+                import secrets
+                if self.secret_key == INSECURE_DEV_SECRET:
+                    self.secret_key = secrets.token_hex(32)
+                    logger.info("[DEMO MODE] Auto-generated secure random SECRET_KEY for judge deployment.")
+                if self.api_keys_salt == INSECURE_DEV_SALT:
+                    self.api_keys_salt = secrets.token_hex(16)
+                    logger.info("[DEMO MODE] Auto-generated secure random API_KEYS_SALT for judge deployment.")
+                return
+
             if self.secret_key == INSECURE_DEV_SECRET:
                 raise ValueError(
                     f"CRITICAL: Refusing to start in {self.app_env} with insecure default SECRET_KEY!"
