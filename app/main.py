@@ -85,6 +85,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     async with AsyncSession(engine) as session:
         demo_hashes = [hash_api_key(k) for k in KNOWN_DEMO_KEYS]
         res = await session.execute(select(ApiKeyModel).where(ApiKeyModel.key_hash.in_(demo_hashes)))
+        found_demo_keys = res.scalars().all()
         if found_demo_keys:
             if settings.app_env != "development":
                 raise ValueError(
