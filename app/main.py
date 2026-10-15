@@ -27,6 +27,7 @@ from app.db import (
     AuditLogModel,
     Base,
     PolicyHistoryModel,
+    QuarantineModel,
     engine,
     get_db,
 )
@@ -643,6 +644,8 @@ async def get_metrics_endpoint(
     verdict_stmt = select(AuditLogModel.verdict, func.count(AuditLogModel.id)).group_by(AuditLogModel.verdict)
     verdict_res = await db.execute(verdict_stmt)
     counts = {v: c for v, c in verdict_res.all()}
+    q_res = await db.execute(select(func.count(QuarantineModel.target_id)).where(QuarantineModel.is_quarantined == True))
+    q_count = q_res.scalar() or 0
 
     lines = [
         "# HELP shield_requests_total Total number of chat requests processed by the security gateway",
@@ -655,7 +658,7 @@ async def get_metrics_endpoint(
         f'shield_verdict_total{{verdict="ALLOW"}} {counts.get("ALLOW", 0)}',
         "# HELP shield_circuit_breaker_quarantined Number of currently quarantined targets",
         "# TYPE shield_circuit_breaker_quarantined gauge",
-        f"shield_circuit_breaker_quarantined {len(circuit_breaker._quarantined_agents)}",
+        f"shield_circuit_breaker_quarantined {q_count}",
     ]
     return PlainTextResponse("\n".join(lines) + "\n")
 

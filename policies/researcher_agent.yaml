@@ -1,36 +1,38 @@
 agent_id: researcher_agent
-version: 1
+version: 2
 description: Knowledge extraction and web research agent
 allowed_tools:
-  - web_fetch
-  - summarize_text
-  - read_file
-  - search_docs
-  - calculator
+- web_fetch
+- summarize_text
+- read_file
+- search_docs
+- calculator
 denied_tools:
-  - execute_bash
-  - delete_file
-  - transfer_funds
-  - send_email
+- execute_bash
+- delete_file
+- transfer_funds
+- send_email
 require_approval_tools:
-  - write_file
-  - http_request
+- write_file
+- http_request
+argument_schemas: {}
 network:
   allowed_domains:
-    - "*.wikipedia.org"
-    - "*.arxiv.org"
-    - "*.nih.gov"
-    - "*.github.com"
+  - '*.wikipedia.org'
+  - '*.arxiv.org'
+  - '*.nih.gov'
+  - '*.github.com'
   denied_domains:
-    - "*webhook.site*"
-    - "*ngrok.io*"
-    - "*evil.com*"
+  - '*webhook.site*'
+  - '*ngrok.io*'
+  - '*evil.com*'
 filesystem:
   allowed_directories:
-    - "/workspace/research"
+  - /workspace/research
   denied_patterns:
-    - "*.env*"
-    - "*id_rsa*"
-    - "*secret*"
+  - '*.env*'
+  - '*id_rsa*'
+  - '*secret*'
+allowed_email_domains: []
 max_transaction_amount: 0.0
 taint_escalation: true
