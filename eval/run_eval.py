@@ -13,6 +13,7 @@ Computes:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -28,6 +29,43 @@ if hasattr(sys.stdout, "reconfigure"):
 
 from app.shield.detector import Detector
 from app.shield.trust import TrustLevel
+
+
+def verify_dataset_checksums() -> None:
+    """Verifies that none of the frozen eval datasets have been modified."""
+    base_dir = os.path.dirname(__file__)
+    checksum_file = os.path.join(base_dir, "CHECKSUMS.sha256")
+    if not os.path.exists(checksum_file):
+        raise SystemExit(f"CRITICAL ERROR: {checksum_file} not found. Evaluation aborted.")
+
+    mismatches = []
+    with open(checksum_file, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            parts = line.split(None, 1)
+            if len(parts) != 2:
+                continue
+            expected_hash, fname = parts[0].strip(), parts[1].strip()
+            target_path = os.path.join(base_dir, fname)
+            if not os.path.exists(target_path):
+                mismatches.append(f"Missing dataset file: {fname}")
+                continue
+            with open(target_path, "rb") as df:
+                actual_hash = hashlib.sha256(df.read()).hexdigest()
+            if actual_hash.lower() != expected_hash.lower():
+                mismatches.append(
+                    f"Integrity check failed for {fname}: expected {expected_hash}, got {actual_hash}"
+                )
+
+    if mismatches:
+        print("\n=======================================================", file=sys.stderr)
+        print("  CRITICAL INTEGRITY VIOLATION: EVAL DATASETS MODIFIED", file=sys.stderr)
+        print("=======================================================", file=sys.stderr)
+        for m in mismatches:
+            print(f"  [!] {m}", file=sys.stderr)
+        sys.exit(1)
 
 
 def load_dataset(file_path: str) -> List[Dict[str, Any]]:
@@ -90,6 +128,7 @@ def run_benchmark(
     output_path: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Executes the full evaluation pipeline and prints formatted reports."""
+    verify_dataset_checksums()
     det = detector or Detector()
     base_dir = os.path.dirname(__file__)
 
@@ -250,6 +289,7 @@ def evaluate_benign_standalone(
     detector: Optional[Detector] = None,
 ) -> Dict[str, Any]:
     """Runs evaluation on a standalone benign set to compute FPR and identify false positives."""
+    verify_dataset_checksums()
     det = detector or Detector()
     samples = load_dataset(benign_path)
     eval_res = evaluate_set(det, samples, is_attack=False)
@@ -260,7 +300,7 @@ def evaluate_benign_standalone(
     print(f"\n=======================================================")
     print(f"  RUNNING BENIGN EVALUATION: {os.path.basename(benign_path)}")
     print(f"  Total Benign Samples: {len(samples)}")
-    print(f"=======================================================\n")
+    print(f"=======================================================")
     print(f"False Positive Rate (FPR): {fpr:.2f}% ({len(fps)} / {len(samples)})")
     if fps:
         print("\n--- False Positives Detected ---")
@@ -288,7 +328,8 @@ def evaluate_benign_standalone(
 
 
 def run_full_suite_and_save_results(output_file: str = "eval/results.json"):
-    """Runs evaluation across heldout, adaptive, train sets, and benign_heldout, saving full results to eval/results.json."""
+    """Runs evaluation across heldout, adaptive, train sets, benign_heldout, and adversarial_benign, saving full results to eval/results.json."""
+    verify_dataset_checksums()
     det = Detector()
     base_dir = os.path.dirname(__file__)
 
@@ -302,6 +343,9 @@ def run_full_suite_and_save_results(output_file: str = "eval/results.json"):
     benign_heldout_report = evaluate_benign_standalone(
         os.path.join(base_dir, "benign_heldout.json"), detector=det
     )
+    adversarial_benign_report = evaluate_benign_standalone(
+        os.path.join(base_dir, "adversarial_benign.json"), detector=det
+    )
 
     combined_results = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -314,6 +358,7 @@ def run_full_suite_and_save_results(output_file: str = "eval/results.json"):
             "adaptive": adaptive_report,
             "train": train_report,
             "benign_heldout": benign_heldout_report,
+            "adversarial_benign": adversarial_benign_report,
         },
     }
 
@@ -327,7 +372,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Agent Hijack Shield Benchmark Runner")
     parser.add_argument(
         "--split",
-        choices=["train", "heldout", "adaptive", "all", "suite", "benign_heldout"],
+        choices=["train", "heldout", "adaptive", "all", "suite", "benign_heldout", "adversarial_benign"],
         default="suite",
     )
     parser.add_argument("--output", type=str, default="eval/results.json")
@@ -337,6 +382,8 @@ if __name__ == "__main__":
         run_full_suite_and_save_results(output_file=args.output)
     elif args.split == "benign_heldout":
         evaluate_benign_standalone(os.path.join(os.path.dirname(__file__), "benign_heldout.json"))
+    elif args.split == "adversarial_benign":
+        evaluate_benign_standalone(os.path.join(os.path.dirname(__file__), "adversarial_benign.json"))
     else:
         run_benchmark(split=args.split, output_path=args.output)
 
