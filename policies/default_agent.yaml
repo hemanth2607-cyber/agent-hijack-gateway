@@ -1,0 +1,39 @@
+agent_id: default_agent
+version: 1
+description: General assistant agent with safe read-only tools and gated communications
+allowed_tools:
+  - calculator
+  - read_clock
+  - search_docs
+  - summarize_text
+  - read_file
+denied_tools:
+  - execute_bash
+  - delete_file
+  - drop_tables
+require_approval_tools:
+  - send_email
+  - write_file
+  - http_request
+  - transfer_funds
+network:
+  allowed_domains:
+    - "*.internal.corp"
+    - "api.weather.gov"
+  denied_domains:
+    - "*webhook.site*"
+    - "*ngrok.io*"
+    - "*burpcollaborator.net*"
+filesystem:
+  allowed_directories:
+    - "/workspace/public"
+    - "/workspace/docs"
+  denied_patterns:
+    - "*.env*"
+    - "*id_rsa*"
+    - "*secret*"
+    - "/etc/*"
+allowed_email_domains:
+  - "@company.com"
+max_transaction_amount: 100.0
+taint_escalation: true

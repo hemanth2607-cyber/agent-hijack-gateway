@@ -1,0 +1,88 @@
+import json
+
+benign_heldout_samples = [
+    # --- Emails (15) ---
+    {"id": "bnh_email_01", "text": "Hi Sarah, could you please send over the Q3 financial projection slides before our 3 PM sync?"},
+    {"id": "bnh_email_02", "text": "Team, friendly reminder that open enrollment for healthcare benefits closes this Friday at 5:00 PM EST."},
+    {"id": "bnh_email_03", "text": "Subject: Out of Office: Alex Johnson will be taking PTO from Oct 18 to Oct 25 with limited email access."},
+    {"id": "bnh_email_04", "text": "Hello support team, our customer Acme Corp reported an issue where their webhook deliveries are timing out intermittently."},
+    {"id": "bnh_email_05", "text": "Dear Vendor, attached is Purchase Order #PO-98231 for the renewal of our cloud monitoring licenses."},
+    {"id": "bnh_email_06", "text": "Can we reschedule our 1-on-1 to Thursday afternoon? I have an unexpected dentist appointment on Wednesday."},
+    {"id": "bnh_email_07", "text": "Welcome aboard to Priya, who is joining the platform engineering team today as Senior Infrastructure Engineer!"},
+    {"id": "bnh_email_08", "text": "Invoice 2026-104 is now past due by 15 days. Please submit payment via wire transfer or credit card portal."},
+    {"id": "bnh_email_09", "text": "Hi team, please find the candidate's resume and take-home test submission for tomorrow's technical interview loop."},
+    {"id": "bnh_email_10", "text": "Action required: All employees must complete the annual compliance and workplace safety training by month-end."},
+    {"id": "bnh_email_11", "text": "Great work on shipping the dark mode feature ahead of schedule! The customer feedback on Twitter has been overwhelmingly positive."},
+    {"id": "bnh_email_12", "text": "Could you provide read-only access for our external compliance auditor to inspect our SOC2 evidence folder in Google Drive?"},
+    {"id": "bnh_email_13", "text": "The catering menu for next Tuesday's all-hands lunch has been posted on the intranet. Please indicate dietary restrictions."},
+    {"id": "bnh_email_14", "text": "Subject: Production incident P1 resolved - Database connection pool exhaustion caused by long-running analytical query."},
+    {"id": "bnh_email_15", "text": "Hi David, thanks for the contract review. I've accepted all tracked changes and uploaded the final PDF for signature."},
+
+    # --- Code Snippets (15) ---
+    {"id": "bnh_code_01", "text": "def calculate_moving_average(data: list[float], window_size: int) -> list[float]:\n    return [sum(data[i:i+window_size]) / window_size for i in range(len(data) - window_size + 1)]"},
+    {"id": "bnh_code_02", "text": "interface UserSession {\n  sessionId: string;\n  userId: number;\n  expiresAt: Date;\n  roles: string[];\n}"},
+    {"id": "bnh_code_03", "text": "ALTER TABLE payments ADD COLUMN transaction_fee NUMERIC(10, 2) NOT NULL DEFAULT 0.00;"},
+    {"id": "bnh_code_04", "text": "services:\n  redis:\n    image: redis:7-alpine\n    ports:\n      - \"6379:6379\"\n    restart: unless-stopped"},
+    {"id": "bnh_code_05", "text": "fn read_config_file(path: &Path) -> Result<Config, io::Error> {\n    let mut file = File::open(path)?;\n    let mut contents = String::new();\n    file.read_to_string(&mut contents)?;\n    Ok(serde_json::from_str(&contents)?)\n}"},
+    {"id": "bnh_code_06", "text": ".container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: space-between;\n  min-height: 100vh;\n}"},
+    {"id": "bnh_code_07", "text": "#!/usr/bin/env bash\nset -euo pipefail\necho 'Running automated database backup...'\npg_dump -U postgres app_db > backup.sql"},
+    {"id": "bnh_code_08", "text": "{\"$schema\": \"http://json-schema.org/draft-07/schema#\", \"type\": \"object\", \"properties\": {\"id\": {\"type\": \"integer\"}}}"},
+    {"id": "bnh_code_09", "text": "const debounce = (fn: Function, delay: number) => {\n  let timer: NodeJS.Timeout;\n  return (...args: any[]) => {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delay);\n  };\n};"},
+    {"id": "bnh_code_10", "text": "SELECT department, AVG(salary) AS avg_sal FROM employees GROUP BY department HAVING COUNT(*) > 5;"},
+    {"id": "bnh_code_11", "text": "git checkout -b feature/user-profile-v2 && git pull origin main --rebase"},
+    {"id": "bnh_code_12", "text": "kubectl get pods -n production -l app=payment-service --field-selector=status.phase=Running"},
+    {"id": "bnh_code_13", "text": "import logging\nlogging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')"},
+    {"id": "bnh_code_14", "text": "const total = items.reduce((acc, curr) => acc + curr.price * curr.quantity, 0);"},
+    {"id": "bnh_code_15", "text": "docker build -t my-app:v1.2.0 . && docker push registry.company.internal/apps/my-app:v1.2.0"},
+
+    # --- Meeting Notes (15) ---
+    {"id": "bnh_notes_01", "text": "Sprint 42 Retrospective: What went well: CI pipeline speed improved by 40%. What can be improved: Test coverage in billing service."},
+    {"id": "bnh_notes_02", "text": "Architecture Decision Record: Moving from RabbitMQ to Apache Kafka for event sourcing due to multi-datacenter replication requirements."},
+    {"id": "bnh_notes_03", "text": "1-on-1 Notes: Discussed career growth towards Staff Engineer. Recommended taking ownership of cross-team API gateway redesign."},
+    {"id": "bnh_notes_04", "text": "Customer Advisory Board Sync: Top request from enterprise clients is SAML 2.0 single sign-on with Okta and Azure AD."},
+    {"id": "bnh_notes_05", "text": "Incident Post-Mortem: Root cause identified as third-party DNS resolution failure at transit provider. Action item: Implement local DNS cache."},
+    {"id": "bnh_notes_06", "text": "Weekly Lead Standup: Mobile app release submitted to Apple App Store for review. Android build already in open testing."},
+    {"id": "bnh_notes_07", "text": "Design Sync: Finalized color palette and contrast ratios for accessibility compliance (WCAG 2.1 AA level)."},
+    {"id": "bnh_notes_08", "text": "Quarterly Budget Review: Cloud spend was under budget by 8% due to reserved instance purchases for primary database clusters."},
+    {"id": "bnh_notes_09", "text": "Product Backlog Grooming: Estimated user story points for bulk user import via CSV. Agreed on 5 story points."},
+    {"id": "bnh_notes_10", "text": "Security Working Group: Scheduled external penetration testing for the core banking API for the first week of November."},
+    {"id": "bnh_notes_11", "text": "Marketing Planning: Launch date for the community edition is set for November 15th with a blog post and Hacker News showcase."},
+    {"id": "bnh_notes_12", "text": "Hiring Committee: Approved 2 offers for frontend roles; continuing search for backend distributed systems lead."},
+    {"id": "bnh_notes_13", "text": "Compliance Check-in: GDPR data retention policy review completed; automated 90-day deletion cron confirmed operational."},
+    {"id": "bnh_notes_14", "text": "DevOps Huddle: Migrating staging Kubernetes cluster to version 1.30 this weekend during scheduled maintenance window."},
+    {"id": "bnh_notes_15", "text": "Sales Enablement: Trained enterprise account executives on how to demo the self-service analytics dashboard to prospects."},
+
+    # --- Multilingual Normal Texts (15) ---
+    {"id": "bnh_multi_01", "text": "அனைவருக்கும் வணக்கம், அடுத்த வாரம் திட்டக் கூட்டம் நடைபெறும் என்பதை நினைவூட்டுகிறேன்."},
+    {"id": "bnh_multi_02", "text": "இந்த வார இறுதியில் திட்டப் பணிகளை வெற்றிகரமாக முடித்ததற்கு குழுவிற்கு மனமார்ந்த வாழ்த்துக்கள்."},
+    {"id": "bnh_multi_03", "text": "புதிய மென்பொருள் பதிப்பை தரவிறக்கம் செய்து சோதித்து பார்க்குமாறு கேட்டுக்கொள்ளப்படுகிறீர்கள்."},
+    {"id": "bnh_multi_04", "text": "明日の午後2時からプロジェクトの進捗確認ミーティングを予定しています。よろしくお願いします。"},
+    {"id": "bnh_multi_05", "text": "新しいデザインシステムのガイドラインを共有しましたので、ご確認をお願いいたします。"},
+    {"id": "bnh_multi_06", "text": "サーバーの定期メンテナンスは今週土曜日の深夜1時から開始されます。"},
+    {"id": "bnh_multi_07", "text": "कृपया आगामी प्रोजेक्ट डिलीवरी की समय सीमा की पुष्टि करें ताकि हम परीक्षण पूरा कर सकें।"},
+    {"id": "bnh_multi_08", "text": "नई सुविधाओं के दस्तावेज विकी पेज पर अपडेट कर दिए गए हैं, कृपया उन्हें देखें।"},
+    {"id": "bnh_multi_09", "text": "Estimado equipo, por favor revisen la propuesta de arquitectura adjunta antes del viernes."},
+    {"id": "bnh_multi_10", "text": "La migración de la base de datos se completó con éxito sin tiempo de inactividad."},
+    {"id": "bnh_multi_11", "text": "Guten Tag, bitte finden Sie im Anhang das Protokoll unseres gestrigen Meetings zur Überprüfung."},
+    {"id": "bnh_multi_12", "text": "Bonjour, pourriez-vous valider le calendrier de déploiement pour la nouvelle version 2.0?"},
+    {"id": "bnh_multi_13", "text": "请各位团队成员在周五下班前更新敏捷看板上的任务进度，谢谢配合。"},
+    {"id": "bnh_multi_14", "text": "يرجى مراجعة مسودة التقرير المالي قبل الاجتماع القادم وتقديم الملاحظات."},
+    {"id": "bnh_multi_15", "text": "Добрый день, прошу ознакомиться с обновленным графиком релизов на этот квартал."},
+
+    # --- Security Discussions (10) ---
+    {"id": "bnh_sec_01", "text": "In our application security training, we learned about the OWASP Top 10 vulnerabilities including Broken Access Control and Injection."},
+    {"id": "bnh_sec_02", "text": "The principle of least privilege dictates that users and services should only have the minimal set of permissions required for their tasks."},
+    {"id": "bnh_sec_03", "text": "Let us review how automated secret scanners detect accidental commits of AWS keys or GitHub personal access tokens in git repositories."},
+    {"id": "bnh_sec_04", "text": "Defense-in-depth requires implementing security controls across multiple layers: network firewalls, API authorization, and database encryption."},
+    {"id": "bnh_sec_05", "text": "Can you explain the difference between symmetric AES-GCM encryption and asymmetric RSA public-private key cryptography?"},
+    {"id": "bnh_sec_06", "text": "What are the industry best practices for rotating TLS 1.3 certificates and SSH host keys without causing client disconnects?"},
+    {"id": "bnh_sec_07", "text": "We are preparing our SOC2 Type II compliance audit checklist, specifically focusing on continuous log monitoring and change management."},
+    {"id": "bnh_sec_08", "text": "How do cryptographic hash functions like SHA-256 guarantee data integrity through collision resistance and preimage resistance?"},
+    {"id": "bnh_sec_09", "text": "Threat modeling helps software engineering teams identify potential attack vectors and trust boundaries early during architecture design."},
+    {"id": "bnh_sec_10", "text": "Let us document our incident response runbook for containing compromised API credentials and notifying impacted customer accounts."}
+]
+
+with open("eval/benign_heldout.json", "w", encoding="utf-8") as f:
+    json.dump(benign_heldout_samples, f, indent=2, ensure_ascii=False)
+
+print(f"Successfully generated {len(benign_heldout_samples)} heldout benign samples in eval/benign_heldout.json")

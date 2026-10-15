@@ -1,0 +1,23 @@
+agent_id: finance_agent
+version: 1
+description: Financial operations agent with tight budget limits and mandatory approvals
+allowed_tools:
+  - get_balance
+  - list_transactions
+  - calculate_exchange_rate
+denied_tools:
+  - execute_bash
+  - delete_file
+  - drop_tables
+require_approval_tools:
+  - transfer_funds
+  - execute_trade
+  - send_invoice
+network:
+  allowed_domains:
+    - "*.bank-partner.internal"
+  denied_domains:
+    - "*crypto-mixer*"
+    - "*webhook.site*"
+max_transaction_amount: 500.0
+taint_escalation: true
