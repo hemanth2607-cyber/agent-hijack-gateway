@@ -115,13 +115,9 @@
       if (videoConfig.poster_url) {
         video.setAttribute("poster", videoConfig.poster_url);
       }
-      var srcWebm = document.createElement("source");
-      srcWebm.setAttribute("src", "/static/assets/demo.webm");
-      srcWebm.setAttribute("type", "video/webm");
       var srcMp4 = document.createElement("source");
       srcMp4.setAttribute("src", "/static/assets/demo.mp4");
       srcMp4.setAttribute("type", "video/mp4");
-      video.appendChild(srcWebm);
       video.appendChild(srcMp4);
       container.appendChild(video);
       return;

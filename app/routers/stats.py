@@ -48,15 +48,54 @@ async def get_security_stats(
 
     # 6. Block Rate Calculation
     blocked_count = verdict_counts.get("BLOCK", 0)
-    block_rate = round((blocked_count / total_requests) * 100.0, 2) if total_requests > 0 else 0.0
+    block_rate = round((blocked_count / total_requests * 100), 2) if total_requests > 0 else 0.0
+
+    # 7. Layer breakdown and headline aggregates
+    det_stmt = select(func.count(AuditLogModel.id)).where(
+        AuditLogModel.action_type == "INBOUND_SCAN",
+        AuditLogModel.verdict.in_(["BLOCK", "FLAG"]),
+    )
+    det_res = await db.execute(det_stmt)
+    detector_blocks = det_res.scalar() or 0
+
+    perm_stmt = select(func.count(AuditLogModel.id)).where(
+        AuditLogModel.action_type == "TOOL_AUTHORIZATION",
+        AuditLogModel.verdict.in_(["BLOCK", "DENIED"]),
+    )
+    perm_res = await db.execute(perm_stmt)
+    permission_blocks = perm_res.scalar() or 0
+
+    total_held_res = await db.execute(select(func.count(ApprovalModel.id)))
+    total_held = total_held_res.scalar() or 0
+
+    human_stmt = select(func.count(AuditLogModel.id)).where(
+        AuditLogModel.action_type.in_(["APPROVAL_RESOLVE", "TOOL_AUTHORIZATION"]),
+        AuditLogModel.verdict.in_(["FLAG", "NEEDS_APPROVAL", "APPROVAL_REQUIRED"]),
+    )
+    human_res = await db.execute(human_stmt)
+    human_count = max(human_res.scalar() or 0, total_held)
+
+    risky_stopped = blocked_count + permission_blocks
+
+    import datetime
+    now_str = datetime.datetime.now(datetime.timezone.utc).strftime("%H:%M:%S UTC")
 
     return {
         "status": "OPERATIONAL",
+        "requests_screened": total_requests,
+        "attacks_blocked": blocked_count,
+        "actions_held": total_held or pending_approvals,
+        "risky_actions_stopped": risky_stopped,
         "total_requests": total_requests,
         "verdict_distribution": {
             "BLOCK": verdict_counts.get("BLOCK", 0),
             "FLAG": verdict_counts.get("FLAG", 0),
             "ALLOW": verdict_counts.get("ALLOW", 0),
+        },
+        "layer_counts": {
+            "text_detector": detector_blocks,
+            "permission_rules": permission_blocks,
+            "human_approval": human_count,
         },
         "block_rate_percent": block_rate,
         "avg_risk_score": avg_risk,
@@ -64,4 +103,5 @@ async def get_security_stats(
         "active_quarantines_count": active_quarantines,
         "active_policies_count": len(policy_registry._policies),
         "active_detection_rules": len(DETECTION_RULES),
+        "last_updated": now_str,
     }

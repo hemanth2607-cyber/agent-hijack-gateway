@@ -678,7 +678,7 @@
         const data = await res.json();
         const actionLabel = isApprove ? "Approved" : "Rejected";
         showToast(
-          `Approval ${actionLabel}! ${data.capability_token ? "Capability Token Issued." : ""}`
+          `Approval ${actionLabel}!`
         );
         await loadPendingApprovals();
         await checkAuditChain();

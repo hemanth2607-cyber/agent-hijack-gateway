@@ -1,19 +1,22 @@
 """Public unauthenticated endpoints for the Judge Experience and Landing Dashboard."""
 
+import datetime
 import json
 import logging
 import os
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 import yaml
 
 from app.config import settings
-from app.db import ApiKeyModel, get_db
+from app.db import ApiKeyModel, ApprovalModel, AuditLogModel, QuarantineModel, get_db
 from app.models import AuditVerifyResponse
 from app.security.audit_chain import verify_audit_chain
 from app.security.auth import hash_api_key
+from app.shield.detector import DETECTION_RULES
+from app.shield.permissions import policy_registry
 
 logger = logging.getLogger(__name__)
 
@@ -234,4 +237,110 @@ async def get_public_config(db: AsyncSession = Depends(get_db)) -> Dict[str, Any
         "demo_video_url": settings.demo_video_url or "",
         "notice": "All tools are simulated. No real actions are ever performed.",
     }
+
+
+@router.get("/stats", summary="Public Security Metrics & Headline Counts")
+async def get_public_stats(db: AsyncSession = Depends(get_db)) -> Dict[str, Any]:
+    """Returns aggregated real operational metrics for the public dashboard."""
+    # 1. Total Requests Screened
+    total_res = await db.execute(select(func.count(AuditLogModel.id)))
+    total_requests = total_res.scalar() or 0
+
+    # 2. Verdict Distribution
+    verdict_stmt = select(AuditLogModel.verdict, func.count(AuditLogModel.id)).group_by(AuditLogModel.verdict)
+    verdict_res = await db.execute(verdict_stmt)
+    verdict_counts = {v: count for v, count in verdict_res.all()}
+
+    # 3. Pending Approvals Count
+    approval_stmt = select(func.count(ApprovalModel.id)).where(ApprovalModel.status == "PENDING")
+    approval_res = await db.execute(approval_stmt)
+    pending_approvals = approval_res.scalar() or 0
+
+    # Total actions held for human
+    held_res = await db.execute(select(func.count(ApprovalModel.id)))
+    total_held = held_res.scalar() or 0
+
+    # 4. Active Quarantines Count
+    quarantine_stmt = select(func.count(QuarantineModel.target_id)).where(QuarantineModel.is_quarantined == True)
+    quarantine_res = await db.execute(quarantine_stmt)
+    active_quarantines = quarantine_res.scalar() or 0
+
+    # 5. Layer breakdown counts from AuditLogModel
+    det_stmt = select(func.count(AuditLogModel.id)).where(
+        AuditLogModel.action_type == "INBOUND_SCAN",
+        AuditLogModel.verdict.in_(["BLOCK", "FLAG"]),
+    )
+    det_res = await db.execute(det_stmt)
+    detector_blocks = det_res.scalar() or 0
+
+    perm_stmt = select(func.count(AuditLogModel.id)).where(
+        AuditLogModel.action_type == "TOOL_AUTHORIZATION",
+        AuditLogModel.verdict.in_(["BLOCK", "DENIED"]),
+    )
+    perm_res = await db.execute(perm_stmt)
+    permission_blocks = perm_res.scalar() or 0
+
+    human_stmt = select(func.count(AuditLogModel.id)).where(
+        AuditLogModel.action_type.in_(["APPROVAL_RESOLVE", "TOOL_AUTHORIZATION"]),
+        AuditLogModel.verdict.in_(["FLAG", "NEEDS_APPROVAL", "APPROVAL_REQUIRED"]),
+    )
+    human_res = await db.execute(human_stmt)
+    human_count = max(human_res.scalar() or 0, total_held)
+
+    blocked_count = verdict_counts.get("BLOCK", 0)
+    risky_stopped = blocked_count + permission_blocks
+
+    now_str = datetime.datetime.now(datetime.timezone.utc).strftime("%H:%M:%S UTC")
+
+    return {
+        "status": "OPERATIONAL",
+        "requests_screened": total_requests,
+        "attacks_blocked": blocked_count,
+        "actions_held": total_held or pending_approvals,
+        "risky_actions_stopped": risky_stopped,
+        "total_requests": total_requests,
+        "verdict_distribution": {
+            "BLOCK": verdict_counts.get("BLOCK", 0),
+            "FLAG": verdict_counts.get("FLAG", 0),
+            "ALLOW": verdict_counts.get("ALLOW", 0),
+        },
+        "layer_counts": {
+            "text_detector": detector_blocks,
+            "permission_rules": permission_blocks,
+            "human_approval": human_count,
+        },
+        "pending_approvals_count": pending_approvals,
+        "active_quarantines_count": active_quarantines,
+        "active_policies_count": len(policy_registry._policies),
+        "active_detection_rules": len(DETECTION_RULES),
+        "last_updated": now_str,
+    }
+
+
+@router.get("/audit/recent", summary="Recent Public Audit Log Records")
+async def get_recent_public_audit_logs(
+    limit: int = 50,
+    db: AsyncSession = Depends(get_db),
+) -> List[Dict[str, Any]]:
+    """Returns safe, recent audit records for the public details view without sensitive raw data."""
+    stmt = select(AuditLogModel).order_by(desc(AuditLogModel.id)).limit(min(limit, 100))
+    res = await db.execute(stmt)
+    records = res.scalars().all()
+    out: List[Dict[str, Any]] = []
+    for r in records:
+        try:
+            reasons = json.loads(r.reason_codes)
+        except Exception:
+            reasons = [r.reason_codes] if r.reason_codes else []
+        out.append({
+            "id": r.id,
+            "timestamp": r.timestamp,
+            "agent_id": r.agent_id,
+            "action_type": r.action_type,
+            "verdict": r.verdict,
+            "risk_score": r.risk_score,
+            "reason_codes": reasons,
+            "current_hash": (r.current_hash[:16] + "...") if r.current_hash else "",
+        })
+    return out
 

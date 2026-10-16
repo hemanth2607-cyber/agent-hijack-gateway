@@ -250,10 +250,30 @@ async def chat_endpoint(
         request_id=req_id,
         caller_role=user.role,
     )
+    import datetime
+    agent_names = {
+        "default_agent": "MailBot",
+        "finance_agent": "FinanceBot",
+        "researcher_agent": "ResearchBot",
+        "coder_agent": "CoderBot",
+    }
+    all_reasons = []
+    for f in resp.findings:
+        if f.rule_id and f.rule_id not in all_reasons:
+            all_reasons.append(f.rule_id)
+        if f.category and f.category not in all_reasons:
+            all_reasons.append(f.category)
+    for t in resp.tool_calls:
+        for rc in t.reason_codes:
+            if rc not in all_reasons:
+                all_reasons.append(rc)
+
     event_broadcaster.broadcast(
         "chat_event",
         {
             "request_id": resp.request_id,
+            "agent_id": req.agent_id,
+            "agent_name": agent_names.get(req.agent_id, req.agent_id),
             "verdict": resp.verdict,
             "risk_score": resp.risk_score,
             "shield_enabled": resp.shield_enabled,
@@ -261,6 +281,8 @@ async def chat_endpoint(
             "findings_count": len(resp.findings),
             "tool_calls_count": len(resp.tool_calls),
             "pending_approvals": resp.pending_approvals,
+            "reason_codes": all_reasons,
+            "time": datetime.datetime.now(datetime.timezone.utc).strftime("%H:%M:%S"),
         },
     )
     return resp
@@ -784,7 +806,7 @@ async def create_key_endpoint(
 )
 @app.post("/events/token", include_in_schema=False)
 async def generate_sse_token_endpoint(
-    user: AuthenticatedUser = Depends(require_role("analyst")),
+    user: AuthenticatedUser = Depends(require_role("client")),
 ) -> Dict[str, Any]:
     """Generates a short-lived (60s) HMAC ticket allowing browser EventSource connections to /events.
 
@@ -905,17 +927,49 @@ if os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
     @app.get("/", include_in_schema=False)
+    @app.get("/dashboard", include_in_schema=False)
+    async def serve_dashboard():
+        dashboard_file = os.path.join(frontend_dir, "dashboard.html")
+        if os.path.exists(dashboard_file):
+            return FileResponse(dashboard_file)
+        landing_file = os.path.join(frontend_dir, "landing.html")
+        if os.path.exists(landing_file):
+            return FileResponse(landing_file)
+        return JSONResponse({"message": "Dashboard not found"})
+
+    @app.get("/landing", include_in_schema=False)
     async def serve_landing():
         landing_file = os.path.join(frontend_dir, "landing.html")
         if os.path.exists(landing_file):
             return FileResponse(landing_file)
-        index_file = os.path.join(frontend_dir, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(index_file)
-        return JSONResponse({"message": "Frontend not found"})
+        return JSONResponse({"message": "Landing not found"})
+
+    # Direct fallback routes for root-level media assets
+    @app.get("/1_cost_of_one_breach.png", include_in_schema=False)
+    @app.get("/1_cost.png", include_in_schema=False)
+    async def serve_chart1():
+        p = os.path.join(frontend_dir, "assets", "charts", "1_cost.png")
+        return FileResponse(p) if os.path.exists(p) else JSONResponse({"detail": "Not found"}, status_code=404)
+
+    @app.get("/2_slow_is_expensive.png", include_in_schema=False)
+    @app.get("/2_slow.png", include_in_schema=False)
+    async def serve_chart2():
+        p = os.path.join(frontend_dir, "assets", "charts", "2_slow.png")
+        return FileResponse(p) if os.path.exists(p) else JSONResponse({"detail": "Not found"}, status_code=404)
+
+    @app.get("/3_modeled_yearly_loss.png", include_in_schema=False)
+    @app.get("/3_modeled.png", include_in_schema=False)
+    async def serve_chart3():
+        p = os.path.join(frontend_dir, "assets", "charts", "3_modeled.png")
+        return FileResponse(p) if os.path.exists(p) else JSONResponse({"detail": "Not found"}, status_code=404)
+
+    @app.get("/Video Project 8.mp4", include_in_schema=False)
+    @app.get("/video_project_8.mp4", include_in_schema=False)
+    async def serve_video():
+        p = os.path.join(frontend_dir, "assets", "demo.mp4")
+        return FileResponse(p) if os.path.exists(p) else JSONResponse({"detail": "Not found"}, status_code=404)
 
     @app.get("/playground", include_in_schema=False)
-    @app.get("/dashboard", include_in_schema=False)
     async def serve_playground():
         playground_file = os.path.join(frontend_dir, "playground.html")
         if os.path.exists(playground_file):
