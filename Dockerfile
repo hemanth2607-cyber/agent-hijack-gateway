@@ -10,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     DEMO_MODE=true \
     SECRET_KEY=tether_prod_secret_key_8f3a2b1c9d4e5f6a7b8c9d0e1f2a3b4c \
     API_KEYS_SALT=tether_prod_salt_8f3a2b1c9d4e5f6a \
-    JUDGE_API_KEY=sk_client_demo_judge_access
+    JUDGE_API_KEY=sk_judge_demo_zero_setup_client_key_32chars
 
 # Install system dependencies (curl for healthcheck) and create unprivileged security user
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -30,7 +30,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Invalidate cache for new application code
-ARG CACHEBUST=20261016_0825
+ARG CACHEBUST=20261016_0927
 COPY --chown=shield:shield . /app/
 
 # Switch to unprivileged security user
