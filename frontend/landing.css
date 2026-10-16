@@ -267,6 +267,74 @@ body {
   border: none;
 }
 
+/* Embedded 3 Charts Strip in Video Module */
+.charts-module-strip {
+  background-color: var(--bg-surface-elevated);
+  border-top: var(--border-solid);
+  padding: 20px;
+}
+
+.charts-module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-secondary);
+  font-weight: 700;
+  border-bottom: 1px dashed var(--ink-muted);
+  padding-bottom: 8px;
+}
+
+.landing-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.landing-chart-card {
+  background-color: var(--bg-surface);
+  border: var(--border-solid);
+  box-shadow: var(--shadow-sm);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.landing-chart-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-orange);
+}
+
+.landing-chart-dl {
+  color: var(--ink-primary);
+  text-decoration: underline;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.landing-chart-img {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--ink-primary);
+  background-color: #FFFFFF;
+}
+
+.landing-chart-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-secondary);
+}
+
 /* Fallback Animated Explainer Stage */
 .explainer-stage {
   width: 100%;

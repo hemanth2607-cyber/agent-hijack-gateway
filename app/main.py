@@ -927,6 +927,15 @@ if os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
     @app.get("/", include_in_schema=False)
+    async def serve_landing():
+        landing_file = os.path.join(frontend_dir, "landing.html")
+        if os.path.exists(landing_file):
+            return FileResponse(landing_file)
+        index_file = os.path.join(frontend_dir, "index.html")
+        if os.path.exists(index_file):
+            return FileResponse(index_file)
+        return JSONResponse({"message": "Frontend not found"})
+
     @app.get("/dashboard", include_in_schema=False)
     async def serve_dashboard():
         dashboard_file = os.path.join(frontend_dir, "dashboard.html")
@@ -936,13 +945,6 @@ if os.path.exists(frontend_dir):
         if os.path.exists(landing_file):
             return FileResponse(landing_file)
         return JSONResponse({"message": "Dashboard not found"})
-
-    @app.get("/landing", include_in_schema=False)
-    async def serve_landing():
-        landing_file = os.path.join(frontend_dir, "landing.html")
-        if os.path.exists(landing_file):
-            return FileResponse(landing_file)
-        return JSONResponse({"message": "Landing not found"})
 
     # Direct fallback routes for root-level media assets
     @app.get("/1_cost_of_one_breach.png", include_in_schema=False)

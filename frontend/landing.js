@@ -100,6 +100,11 @@
     var container = document.getElementById("video-display-area");
     if (!container) return;
 
+    // If video element is already present in markup, preserve it
+    if (container.querySelector("video")) {
+      return;
+    }
+
     // Clear loading placeholder safely
     while (container.firstChild) {
       container.removeChild(container.firstChild);

@@ -23,6 +23,7 @@
     </div>
     <div class="chassis-header-right">
       <span id="sys-clock">SYS_CLK: --:--:--.--- UTC</span>
+      <a href="/dashboard">DASHBOARD</a>
       <a href="/playground">PLAYGROUND</a>
       <a href="/docs">API DOCS</a>
       <a href="https://github.com/hemanth2607-cyber/agent-hijack-gateway" target="_blank" rel="noopener">GITHUB</a>
@@ -41,25 +42,64 @@
       <p class="hero-pitch">A security gateway that stops AI agents from being hijacked by hidden instructions.</p>
       
       <div class="hero-actions">
-        <a href="/playground" class="btn-primary" id="btn-enter-playground">
-          <span>ENTER THE PLAYGROUND</span>
+        <a href="/dashboard" class="btn-primary" id="btn-enter-dashboard" style="background-color: var(--accent-orange);">
+          <span>OPEN DASHBOARD</span>
           <span>&rarr;</span>
+        </a>
+        <a href="/playground" class="btn-secondary" id="btn-enter-playground">
+          <span>INTERACTIVE PLAYGROUND</span>
         </a>
         <a href="#quickstart" class="btn-secondary">DEVELOPER QUICKSTART</a>
         <a href="/docs" class="btn-secondary">API SPECIFICATION (/DOCS)</a>
-        <a href="https://github.com/hemanth2607-cyber/agent-hijack-gateway" target="_blank" rel="noopener" class="btn-secondary">GITHUB REPO</a>
       </div>
     </section>
 
     <!-- Video & Explainer Section -->
     <section class="video-module">
       <div class="video-header">
-        <span>DEVELOPER DEMO // CONNECTING AGENTS & DEFENSE-IN-DEPTH GATEWAY</span>
+        <span>DEVELOPER DEMO // CONNECTING AGENTS &amp; DEFENSE-IN-DEPTH GATEWAY</span>
         <span>STATUS: SIMULATED ENVIRONMENT</span>
       </div>
-      <div class="video-player-container" id="video-display-area">
-        <!-- Injected dynamically via landing.js: <video>, <iframe>, or interactive 60s animated fallback -->
-        <div style="color: #615E56; font-family: monospace; font-size: 13px;">INITIALIZING TELEMETRY STAGE...</div>
+      <div class="video-player-container" id="video-display-area" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000;">
+        <video controls playsinline preload="metadata" style="width: 100%; height: 100%; object-fit: contain;">
+          <source src="/static/assets/demo.mp4" type="video/mp4">
+          <source src="/Video Project 8.mp4" type="video/mp4">
+          Your browser does not support HTML5 video streaming.
+        </video>
+      </div>
+
+      <!-- 3 Charts Section inside the video module -->
+      <div class="charts-module-strip">
+        <div class="charts-module-header">
+          <span>KEY EMPIRICAL IMPACT BENCHMARKS // IBM COST OF A DATA BREACH REPORT 2026</span>
+          <span style="color: var(--accent-orange); font-weight: 700;">3 BENCHMARK CHARTS</span>
+        </div>
+        <div class="landing-charts-grid">
+          <div class="landing-chart-card">
+            <div class="landing-chart-top">
+              <span>PHOTO 01 // 1_COST</span>
+              <a href="/1_cost_of_one_breach.png" download class="landing-chart-dl">Save as PNG</a>
+            </div>
+            <img src="/static/assets/charts/1_cost.png" alt="Cost of One Data Breach" class="landing-chart-img">
+            <div class="landing-chart-sub">Global avg $4.99M vs AI-enabled $6.00M</div>
+          </div>
+          <div class="landing-chart-card">
+            <div class="landing-chart-top">
+              <span>PHOTO 02 // 2_SLOW</span>
+              <a href="/2_slow_is_expensive.png" download class="landing-chart-dl">Save as PNG</a>
+            </div>
+            <img src="/static/assets/charts/2_slow.png" alt="Slow is Expensive" class="landing-chart-img">
+            <div class="landing-chart-sub">Rapid containment cuts loss by $1.76M+</div>
+          </div>
+          <div class="landing-chart-card">
+            <div class="landing-chart-top">
+              <span>PHOTO 03 // 3_MODELED</span>
+              <a href="/3_modeled_yearly_loss.png" download class="landing-chart-dl">Save as PNG</a>
+            </div>
+            <img src="/static/assets/charts/3_modeled.png" alt="Modeled Yearly Loss Exposure" class="landing-chart-img">
+            <div class="landing-chart-sub">95.65% empirical attack mitigation</div>
+          </div>
+        </div>
       </div>
     </section>
 
