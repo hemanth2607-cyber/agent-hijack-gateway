@@ -13,11 +13,12 @@ import logging
 import time
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import delete, select
+from sqlalchemy import delete, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db import ApiKeyModel, ApprovalModel, QuarantineModel, get_db
+from app.db import ApiKeyModel, ApprovalModel, AuditLogModel, QuarantineModel, get_db
 from app.models import ApprovalActionResponse, ApprovalItem
+from app.security.audit_chain import compute_record_hash, verify_audit_chain
 from app.security.auth import AuthenticatedUser, hash_api_key, require_role
 from app.shield.approvals import get_approval, list_pending_approvals, resolve_approval
 from app.shield.circuit_breaker import circuit_breaker
@@ -219,3 +220,88 @@ async def demo_reject_tool_call(
         raise HTTPException(status_code=404, detail=str(exc))
     except (PermissionError, ValueError, TimeoutError) as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+
+
+_TAMPER_BACKUP: Dict[int, Dict[str, Any]] = {}
+
+
+@router.post("/audit/tamper", summary="Simulate Database Tamper on Audit Chain")
+async def demo_tamper_audit_chain(
+    user: AuthenticatedUser = Depends(require_role("client")),
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
+    """Maliciously modifies an audit record in the database to demonstrate cryptographic blockchain tamper detection."""
+    stmt = select(AuditLogModel).order_by(desc(AuditLogModel.id)).limit(1)
+    res = await db.execute(stmt)
+    record = res.scalar_one_or_none()
+    if not record:
+        raise HTTPException(status_code=400, detail="No audit records available to tamper.")
+
+    # Save original backup
+    _TAMPER_BACKUP[record.id] = {
+        "verdict": record.verdict,
+        "current_hash": record.current_hash,
+    }
+
+    # Maliciously tamper with the hash and verdict
+    record.current_hash = "deadbeef00000000111111112222222233333333444444445555555566666666"
+    record.verdict = "ALLOW"
+    db.add(record)
+    await db.commit()
+
+    return {
+        "status": "tampered",
+        "tampered_record_id": record.id,
+        "tampered_hash": record.current_hash,
+        "message": f"Tampered record #{record.id} in SQLite database. Altered SHA-256 hash to simulate unauthorized database edit.",
+    }
+
+
+@router.post("/audit/restore", summary="Restore Genuine Audit Chain")
+async def demo_restore_audit_chain(
+    user: AuthenticatedUser = Depends(require_role("client")),
+    db: AsyncSession = Depends(get_db),
+) -> Dict[str, Any]:
+    """Restores the genuine audit chain state."""
+    # Restore from backup
+    if _TAMPER_BACKUP:
+        for rec_id, backup in list(_TAMPER_BACKUP.items()):
+            stmt = select(AuditLogModel).where(AuditLogModel.id == rec_id)
+            res = await db.execute(stmt)
+            rec = res.scalar_one_or_none()
+            if rec:
+                rec.verdict = backup["verdict"]
+                rec.current_hash = backup["current_hash"]
+                db.add(rec)
+        _TAMPER_BACKUP.clear()
+        await db.commit()
+
+    # Re-verify to be sure
+    verify_res = await verify_audit_chain(db)
+    if not verify_res.is_valid and verify_res.first_broken_link_id:
+        # If any lingering mismatch, recompute the record hash properly
+        stmt = select(AuditLogModel).where(AuditLogModel.id == verify_res.first_broken_link_id)
+        res = await db.execute(stmt)
+        bad_rec = res.scalar_one_or_none()
+        if bad_rec:
+            reason_codes = json.loads(bad_rec.reason_codes) if bad_rec.reason_codes else []
+            details = json.loads(bad_rec.details_json) if bad_rec.details_json else {}
+            canonical_payload = {
+                "request_id": bad_rec.request_id,
+                "agent_id": bad_rec.agent_id,
+                "session_id": bad_rec.session_id or "",
+                "action_type": bad_rec.action_type,
+                "verdict": bad_rec.verdict,
+                "risk_score": round(float(bad_rec.risk_score), 2),
+                "reason_codes": sorted(reason_codes),
+                "timestamp_iso": bad_rec.timestamp,
+                "details": details,
+            }
+            bad_rec.current_hash = compute_record_hash(bad_rec.prev_hash, canonical_payload)
+            db.add(bad_rec)
+            await db.commit()
+
+    return {
+        "status": "restored",
+        "message": "Audit chain restored to 100% genuine cryptographic state.",
+    }

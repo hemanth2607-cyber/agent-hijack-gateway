@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tether Dashboard // Defense-in-Depth Agent Security Gateway</title>
-  <meta name="description" content="Production security dashboard for Tether Agent Hijack Shield: live telemetry, defense layer metrics, side-by-side execution testing, and cryptographic audit proofs.">
+  <title>Tether Playground // 3-Section Defense-in-Depth Security Console</title>
+  <meta name="description" content="Interactive 3-section playground for Tether Agent Hijack Shield: Prompt injection comparison, blockchain SHA-256 cryptographic audit chain tamper testing, and human approvals queue.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -15,38 +15,36 @@
   <!-- Top Simulation Notice Banner -->
   <div class="sim-notice-strip" id="simulationNoticeStrip">
     <div class="sim-notice-content">
-      <span class="pulse-amber"></span>
-      <span>Simulated environment: no real emails, files, network calls or payments.</span>
+      <span class="pulse-indicator"></span>
+      <span>SIMULATED ENVIRONMENT // ZERO REAL EMAILS, CALLS, OR PAYMENTS PERFORMED</span>
     </div>
     <span class="spec-tag">SPECIFICATION: PS-023 // FAIL-CLOSED</span>
   </div>
 
   <!-- Master Chassis Header -->
   <header class="dashboard-header">
-    <a href="/" class="brand-group" title="Tether Master Overview">
+    <a href="/" class="brand-group" title="Return to Tether Landing Overview">
       <div class="brand-icon">T</div>
       <div>
         <h1 class="brand-title">TETHER // AGENT SHIELD</h1>
       </div>
-      <span class="brand-tag">GATEWAY V1</span>
+      <span class="brand-tag">PLAYGROUND CONSOLE</span>
     </a>
 
     <div class="header-controls">
-      <button class="btn btn-business-toggle" id="btnToggleBusinessView" aria-pressed="false">
-        <span>💼 Business View (Exposure)</span>
-      </button>
-      <a href="/playground" class="btn btn-secondary btn-sm">Legacy Playground</a>
-      <a href="/docs" class="btn btn-secondary btn-sm" target="_blank" rel="noopener">API Docs</a>
-      <a href="https://github.com/hemanth2607-cyber/agent-hijack-gateway" class="btn btn-secondary btn-sm" target="_blank" rel="noopener">GitHub</a>
+      <a href="/" class="btn btn-sm">← Back to Overview</a>
+      <button class="btn btn-sm" id="btnResetDemoState" title="Reset pending approvals, session taint, and circuit breaker">↺ Reset Demo State</button>
+      <a href="/docs" class="btn btn-sm" target="_blank" rel="noopener">API Docs (/docs)</a>
+      <a href="https://github.com/hemanth2607-cyber/agent-hijack-gateway" class="btn btn-sm" target="_blank" rel="noopener">GitHub</a>
     </div>
   </header>
 
-  <!-- Status Strip (Top Component) -->
-  <aside class="status-strip" aria-label="System Security Status Strip">
+  <!-- Status Strip (Top Hardware Indicators) -->
+  <aside class="status-strip" aria-label="System Hardware Status Strip">
     <div class="status-items">
       <div class="status-item">
-        <span class="status-item-label">GATEWAY SHIELD:</span>
-        <span class="status-pill pill-shield-on" id="statusShieldPill">SHIELD ON</span>
+        <span class="status-item-label">GATEWAY:</span>
+        <span class="status-pill pill-shield-on" id="statusShieldPill">SHIELD ACTIVE</span>
       </div>
 
       <div class="status-item">
@@ -62,596 +60,494 @@
 
     <div class="status-item">
       <span class="status-item-label">SYS_CLK:</span>
-      <span id="sysClockText" style="font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary);">--:--:-- UTC</span>
+      <span id="sysClockText" style="font-weight: 700;">--:--:-- UTC</span>
     </div>
   </aside>
 
-  <!-- Main Executive Container -->
+  <!-- Main Container -->
   <main class="container">
 
-    <!-- Optional Business View Card (Toggled via Header Button) -->
-    <section class="business-view-card" id="businessViewCard" style="display: none;" aria-label="Executive Business Loss Calculator">
-      <div class="section-header" style="border-bottom-color: rgba(245, 158, 11, 0.4); margin-bottom: 0;">
-        <div class="section-title-wrap">
-          <span class="section-number" style="color: var(--accent-amber); border-color: rgba(245, 158, 11, 0.4);">BUSINESS ROI</span>
-          <h2 class="section-title" style="color: #fef3c7;">Modeled Yearly Exposure Calculator</h2>
-        </div>
-        <span style="font-size: 11px; color: #fde68a; font-family: var(--font-mono);">IBM COST OF A DATA BREACH BENCHMARKS</span>
+    <!-- 3-Section Navigation Bar -->
+    <nav class="playground-nav-box" aria-label="Playground Section Navigation">
+      <div class="nav-meta-bar">
+        <span class="nav-label">INTERACTIVE SECURITY PLAYGROUND // 3 CORE STAGES</span>
+        <span>SELECT SECTION OR USE STEP BUTTONS BELOW</span>
       </div>
 
-      <p class="section-desc" style="color: #fde68a;">
-        Calculate estimated annual loss exposure with and without Tether based on industry-standard incident containment statistics.
-      </p>
-
-      <div class="calc-inputs-grid">
-        <div class="calc-field">
-          <label for="calcPresetSelect">INDUSTRY BENCHMARK PRESET</label>
-          <select id="calcPresetSelect">
-            <option value="4.99">Global Average ($4.99M - IBM 2026)</option>
-            <option value="6.00">AI-Enabled Attacks (~$6.00M)</option>
-            <option value="6.29">Financial Services ($6.29M)</option>
-            <option value="6.64">Healthcare Sector ($6.64M)</option>
-            <option value="11.50">United States Enterprise ($11.50M)</option>
-            <option value="custom">Custom Cost Input</option>
-          </select>
-        </div>
-
-        <div class="calc-field">
-          <label for="calcCostInput">ESTIMATED COST PER BREACH ($M)</label>
-          <input type="number" id="calcCostInput" value="4.99" step="0.01" min="0.1">
-        </div>
-
-        <div class="calc-field">
-          <label for="calcChanceInput">YEARLY BREACH ATTEMPT CHANCE (%)</label>
-          <input type="number" id="calcChanceInput" value="25" min="1" max="100">
-        </div>
-
-        <div class="calc-field">
-          <label for="calcStoppedInput">SHARE STOPPED BY TETHER (%)</label>
-          <input type="number" id="calcStoppedInput" value="95.65" min="1" max="100" step="0.1">
-        </div>
-      </div>
-
-      <div class="calc-output-box">
-        <div>
-          <div class="output-stat-title">YEARLY EXPOSURE WITHOUT TETHER</div>
-          <div class="output-stat-val val-without" id="outputWithoutTether">$1.25M / yr</div>
-        </div>
-        <div>
-          <div class="output-stat-title">MODELED EXPOSURE WITH TETHER</div>
-          <div class="output-stat-val val-with" id="outputWithTether">$54.3K / yr</div>
-        </div>
-      </div>
-
-      <div class="calc-disclaimer">
-        * Modeled estimate, not a measured loss. Citing IBM Cost of a Data Breach Report 2026. Does not guarantee zero incident impact.
-      </div>
-    </section>
-
-    <!-- 1. Four Headline Tiles (Refreshed every 5s from /v1/public/stats) -->
-    <section class="headline-tiles-section" aria-label="Key Operational Headline Tiles">
-      <div class="headline-tiles-grid" id="headlineTilesContainer">
-        <!-- Tile 1: Requests Screened -->
-        <div class="headline-tile">
-          <span class="tile-label">REQUESTS SCREENED</span>
-          <span class="tile-metric" id="tileRequestsScreened">--</span>
-          <span class="tile-caption">Total agent interactions inspected by gateway</span>
-          <span class="tile-updated" id="updatedRequestsScreened">Loading...</span>
-        </div>
-
-        <!-- Tile 2: Attacks Blocked -->
-        <div class="headline-tile tile-danger">
-          <span class="tile-label">ATTACKS BLOCKED</span>
-          <span class="tile-metric" style="color: var(--accent-red);" id="tileAttacksBlocked">--</span>
-          <span class="tile-caption">Direct prompt injections &amp; malicious payloads halted</span>
-          <span class="tile-updated" id="updatedAttacksBlocked">Loading...</span>
-        </div>
-
-        <!-- Tile 3: Actions Held for Human -->
-        <div class="headline-tile tile-warning">
-          <span class="tile-label">ACTIONS HELD FOR A HUMAN</span>
-          <span class="tile-metric" style="color: var(--accent-amber);" id="tileActionsHeld">--</span>
-          <span class="tile-caption">High-risk or tainted actions awaiting sign-off</span>
-          <span class="tile-updated" id="updatedActionsHeld">Loading...</span>
-        </div>
-
-        <!-- Tile 4: Risky Actions Stopped -->
-        <div class="headline-tile tile-success">
-          <span class="tile-label">RISKY ACTIONS STOPPED</span>
-          <span class="tile-metric" style="color: var(--accent-green);" id="tileRiskyStopped">--</span>
-          <span class="tile-caption">Unauthorized tool calls &amp; exfiltration prevented</span>
-          <span class="tile-updated" id="updatedRiskyStopped">Loading...</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. MAIN CENTERPIECE: SHIELD OFF VS ON TEST (COMPARISONS) -->
-    <section class="side-by-side-section main-hero-section" id="sectionSideBySide" aria-label="Main Interactive Shield Comparison">
-      <div class="section-header main-hero-header">
-        <div class="section-title-wrap">
-          <span class="section-number hero-number">MAIN STAGE</span>
-          <h2 class="section-title hero-title">Shield OFF vs Shield ON Live Comparison</h2>
-        </div>
-        <div class="hero-actions">
-          <button class="btn btn-secondary btn-sm" id="btnExportSideBySide">Save as PNG</button>
-          <button class="btn btn-secondary btn-sm" id="btnResetDemoState">↺ Reset State</button>
-        </div>
-      </div>
-
-      <p class="section-desc hero-desc">
-        Evaluate identical prompt payloads through an unprotected raw AI agent vs the Tether Security Gateway. Observe real tool execution decisions, containment policies, and plain-English risk findings.
-      </p>
-
-      <!-- Preset Buttons (6 Presets Required) -->
-      <div class="presets-group">
-        <label class="input-sublabel">
-          SELECT ATTACK PRESET (1-CLICK TEST)
-        </label>
-        <div class="presets-bar" id="presetsBar">
-          <button class="preset-btn active" data-preset="safe">1. Safe Request</button>
-          <button class="preset-btn" data-preset="direct_override">2. Direct Override</button>
-          <button class="preset-btn" data-preset="poisoned_doc">3. Poisoned Document (Exfiltrate Email)</button>
-          <button class="preset-btn" data-preset="ssrf">4. SSRF Attempt</button>
-          <button class="preset-btn" data-preset="transfer_7500">5. $7,500 Transfer</button>
-          <button class="preset-btn" data-preset="hindi">6. Hindi Override</button>
-        </div>
-      </div>
-
-      <!-- Target Agent Selector -->
-      <div class="agent-selector-row">
-        <span class="input-sublabel" style="margin: 0;">TARGET AGENT:</span>
-        <div class="presets-bar" id="agentSelectBar">
-          <button class="preset-btn active" data-agent="default_agent">MailBot</button>
-          <button class="preset-btn" data-agent="finance_agent">FinanceBot</button>
-          <button class="preset-btn" data-agent="researcher_agent">ResearchBot</button>
-          <button class="preset-btn" data-agent="coder_agent">CoderBot</button>
-        </div>
-        <span id="agentPolicyQuickSummary" class="agent-summary-text">Emails to @company.com only; writes held for approval</span>
-      </div>
-
-      <!-- Editable Message & Document Box -->
-      <div class="test-input-grid">
-        <div class="input-box-group">
-          <label class="input-label" for="txtUserPrompt">USER MESSAGE / PROMPT</label>
-          <textarea class="input-textarea" id="txtUserPrompt" placeholder="Enter user prompt to test..."></textarea>
-        </div>
-        <div class="input-box-group">
-          <label class="input-label" for="txtUntrustedDoc">EXTERNAL DOCUMENT / CONTEXT (OPTIONAL)</label>
-          <textarea class="input-textarea" id="txtUntrustedDoc" placeholder="Paste untrusted document text or webpage content..."></textarea>
-        </div>
-      </div>
-
-      <!-- Action Row -->
-      <div class="run-action-row">
-        <button class="btn btn-primary run-btn-main" id="btnRunSideBySide">
-          <span>⚡ Run Side by Side</span>
+      <div class="playground-tabs-grid" id="playgroundTabsGrid" role="tablist">
+        <!-- Tab 01 -->
+        <button class="section-tab-btn active" id="tabSection1" role="tab" aria-selected="true" aria-controls="sectionPanel1">
+          <span class="tab-badge">STAGE 01</span>
+          <span class="tab-title">Injection Comparison</span>
+          <span class="tab-desc">Shield OFF vs Shield ON side-by-side prompt attack evaluation</span>
         </button>
-        <span class="scripted-disclaimer">
-          * The agent's proposal is scripted for the demo; the shield's decision is real.
-        </span>
+
+        <!-- Tab 02 -->
+        <button class="section-tab-btn" id="tabSection2" role="tab" aria-selected="false" aria-controls="sectionPanel2">
+          <span class="tab-badge">STAGE 02</span>
+          <span class="tab-title">Blockchain Audit Chain</span>
+          <span class="tab-desc">SHA-256 tamper-evident integrity &amp; malicious edit attack testing</span>
+        </button>
+
+        <!-- Tab 03 -->
+        <button class="section-tab-btn" id="tabSection3" role="tab" aria-selected="false" aria-controls="sectionPanel3">
+          <span class="tab-badge">STAGE 03</span>
+          <span class="tab-title">Approvals &amp; Defense Depth</span>
+          <span class="tab-desc">Human-in-the-loop quarantine queue, 5-layer stack, and honest metrics</span>
+        </button>
       </div>
+    </nav>
 
-      <!-- Comparison Display Output (Two Columns) -->
-      <div class="comparison-container" id="sideBySideOutputBox">
-        <!-- Left Column: Shield OFF -->
-        <div class="comparison-column col-unshielded" id="colShieldOff">
-          <div class="column-header">
-            <span class="column-title" style="color: var(--accent-red);">
-              <span>✕</span>
-              <span>Shield OFF (Raw Agent)</span>
-            </span>
-            <span class="status-pill pill-shield-off" id="offVerdictBadge">UNPROTECTED</span>
+    <!-- ================================================================= -->
+    <!-- SECTION 01: PROMPT INJECTION COMPARISON                           -->
+    <!-- ================================================================= -->
+    <section class="playground-section-panel active" id="sectionPanel1" role="tabpanel" aria-labelledby="tabSection1">
+      
+      <div class="console-card">
+        <div class="console-card-header">
+          <div class="card-title-group">
+            <span class="card-section-tag">STAGE 01 // SIDE-BY-SIDE EVALUATION</span>
+            <h2 class="card-title">Prompt Injection Comparison: Shield OFF vs Shield ON</h2>
+            <p class="card-desc">
+              Test how vulnerable AI agents are hijacked when exposed to malicious instructions, and how Tether Gateway's defense-in-depth automatically intercepts and neutralizes the attack.
+            </p>
           </div>
+          <button class="btn btn-sm" id="btnExportSideBySide">Save as PNG</button>
+        </div>
 
-          <!-- Real Response Headline -->
-          <div class="headline-banner-box banner-off">
-            <div class="banner-label">RAW AGENT OUTCOME:</div>
-            <div class="banner-text" id="offOutcomeHeadline">Running comparison...</div>
-          </div>
-
-          <!-- Risk Score Gauge -->
-          <div class="metric-row">
-            <span class="metric-row-label">RISK LEVEL:</span>
-            <div class="risk-meter-container">
-              <div class="risk-meter-fill fill-off" id="offRiskGauge" style="width: 0%;"></div>
-            </div>
-            <span class="risk-score-badge" id="offRiskScoreText">-- / 100</span>
-          </div>
-
-          <!-- Tool Actions Attempted -->
-          <div class="actions-box">
-            <div class="actions-box-title">ATTEMPTED TOOL ACTIONS:</div>
-            <div class="actions-chips-container" id="offToolActionsContainer">
-              <span class="tool-chip chip-neutral">None</span>
-            </div>
-          </div>
-
-          <!-- Raw Execution Details -->
-          <div class="actions-box" style="margin-top: 12px;">
-            <div class="actions-box-title">AGENT RESPONSE / OUTPUT:</div>
-            <div class="agent-output-pre" id="offAgentOutputText">Click 'Run Side by Side' above to trigger execution.</div>
+        <!-- 6 Presets Selector -->
+        <div class="presets-group">
+          <span class="input-label">SELECT ATTACK SCENARIO (1-CLICK BENCHMARK)</span>
+          <div class="presets-grid" id="presetsGrid">
+            <button class="preset-chip-btn active" data-preset="safe">
+              <span class="preset-chip-title">1. Safe Request</span>
+              <span class="preset-chip-sub">Benign document search (0.00 Risk)</span>
+            </button>
+            <button class="preset-chip-btn" data-preset="direct_override">
+              <span class="preset-chip-title">2. Direct Override</span>
+              <span class="preset-chip-sub">Ignore instructions &amp; dump API keys</span>
+            </button>
+            <button class="preset-chip-btn" data-preset="poisoned_doc">
+              <span class="preset-chip-title">3. Poisoned Invoice PDF</span>
+              <span class="preset-chip-sub">Indirect injection exfiltrating via email</span>
+            </button>
+            <button class="preset-chip-btn" data-preset="ssrf">
+              <span class="preset-chip-title">4. SSRF Reconnaissance</span>
+              <span class="preset-chip-sub">Probe AWS 169.254.169.254 metadata</span>
+            </button>
+            <button class="preset-chip-btn" data-preset="transfer_7500">
+              <span class="preset-chip-title">5. $7,500 Wire Transfer</span>
+              <span class="preset-chip-sub">Financial escalation above $500 threshold</span>
+            </button>
+            <button class="preset-chip-btn" data-preset="hindi">
+              <span class="preset-chip-title">6. Hindi Jailbreak</span>
+              <span class="preset-chip-sub">Multilingual Devanagari evasion bypass</span>
+            </button>
           </div>
         </div>
 
-        <!-- Right Column: Shield ON -->
-        <div class="comparison-column col-shielded" id="colShieldOn">
-          <div class="column-header">
-            <span class="column-title" style="color: var(--accent-green);">
-              <span>✓</span>
-              <span>Shield ON (Tether Gateway)</span>
-            </span>
-            <span class="status-pill pill-shield-on" id="onVerdictBadge">PROTECTED</span>
+        <!-- Target Agent Selector -->
+        <div class="agent-selector-strip">
+          <span class="input-label" style="margin: 0;">TARGET AGENT:</span>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="agentSelectBar">
+            <button class="agent-pill-btn active" data-agent="default_agent">MailBot</button>
+            <button class="agent-pill-btn" data-agent="finance_agent">FinanceBot</button>
+            <button class="agent-pill-btn" data-agent="researcher_agent">ResearchBot</button>
+            <button class="agent-pill-btn" data-agent="coder_agent">CoderBot</button>
           </div>
-
-          <!-- Real Response Headline -->
-          <div class="headline-banner-box banner-on">
-            <div class="banner-label">TETHER DECISION OUTCOME:</div>
-            <div class="banner-text" id="onOutcomeHeadline">Running comparison...</div>
-          </div>
-
-          <!-- Risk Score Gauge -->
-          <div class="metric-row">
-            <span class="metric-row-label">RISK LEVEL:</span>
-            <div class="risk-meter-container">
-              <div class="risk-meter-fill fill-on" id="onRiskGauge" style="width: 0%;"></div>
-            </div>
-            <span class="risk-score-badge" id="onRiskScoreText">-- / 100</span>
-          </div>
-
-          <!-- Tool Actions Authorized / Denied / Held -->
-          <div class="actions-box">
-            <div class="actions-box-title">GATEWAY TOOL DECISION:</div>
-            <div class="actions-chips-container" id="onToolActionsContainer">
-              <span class="tool-chip chip-neutral">None</span>
-            </div>
-          </div>
-
-          <!-- Gating Verdict Details -->
-          <div class="actions-box" style="margin-top: 12px;">
-            <div class="actions-box-title">DETECTION &amp; POLICY FINDINGS:</div>
-            <div class="agent-output-pre" id="onAgentOutputText">Protected gateway decisions and intercepted findings will appear here.</div>
-          </div>
+          <span class="agent-policy-badge" id="agentPolicyQuickSummary">Allowed: search_docs, read_file | Approval required: send_email, transfer_funds</span>
         </div>
-      </div>
-    </section>
 
-    <!-- 3. EXECUTIVE BRIEFING: VIDEO WALKTHROUGH & 3 PHOTOS SECTION INSIDE IT -->
-    <section class="executive-briefing-card" id="sectionExecutiveBriefing" aria-label="Executive Briefing Video and Benchmark Photos">
-      <div class="section-header">
-        <div class="section-title-wrap">
-          <span class="section-number">BRIEFING</span>
-          <h2 class="section-title">System Walkthrough &amp; Security Economics</h2>
-        </div>
-        <span class="video-caption-badge">EMBEDDED DEMO &amp; BENCHMARK SUITE</span>
-      </div>
-
-      <p class="section-desc">
-        Watch Tether's real-time de-obfuscation and policy intercept in action, followed by the empirical cost and containment benchmarks.
-      </p>
-
-      <!-- Video Player -->
-      <div class="video-container">
-        <video class="video-element" id="mainDemoVideoPlayer" controls playsinline preload="metadata">
-          <source src="/static/assets/demo.mp4" type="video/mp4">
-          Your browser does not support HTML5 video streaming.
-        </video>
-      </div>
-
-      <div class="video-caption-bar">
-        <span class="video-caption-text">
-          Demonstrates real-time de-obfuscation, taint escalation, policy gating, human-in-the-loop approvals, and audit chain validation.
-        </span>
-        <button class="btn btn-secondary btn-sm" id="btnRestartVideo">↺ Replay Video</button>
-      </div>
-
-      <!-- SECTION INSIDE IT: 3 Impact Benchmark Photos -->
-      <div class="embedded-charts-section" id="embeddedChartsSection">
-        <div class="embedded-charts-header">
+        <!-- Inputs Grid -->
+        <div class="test-inputs-grid">
           <div>
-            <h3 class="panel-heading" style="font-size: 16px;">Key Security Economics (3 Impact Photos)</h3>
-            <span class="chart-tag">CITING IBM COST OF A DATA BREACH REPORT 2026</span>
+            <label class="input-label" for="txtUserPrompt">USER MESSAGE / PROMPT INSTRUCTION</label>
+            <textarea class="input-textarea" id="txtUserPrompt" placeholder="Enter user prompt to test..."></textarea>
           </div>
-          <div class="chart-tabs-bar" id="chartViewTabs">
-            <button class="chart-tab-btn active" data-view="business">Cost &amp; Exposure (1_cost, 2_slow, 3_modeled)</button>
-            <button class="chart-tab-btn" data-view="technical">Architecture (1_shield, 2_detector, 3_venn)</button>
+          <div>
+            <label class="input-label" for="txtUntrustedDoc">ATTACHED DOCUMENT / CONTEXT (INDIRECT INJECTION VECTOR)</label>
+            <textarea class="input-textarea" id="txtUntrustedDoc" placeholder="Paste untrusted document text or invoice content..."></textarea>
           </div>
         </div>
 
-        <!-- Business 3 Photos Grid -->
-        <div class="charts-grid" id="gridBusinessCharts">
-          <!-- Photo 1: 1_cost (Cost of One Breach) -->
-          <article class="chart-card" id="cardChart1">
-            <div class="chart-card-header">
-              <div>
-                <span class="chart-tag">PHOTO 01 // 1_COST</span>
-                <h4 class="chart-card-title">Cost of One Data Breach</h4>
-              </div>
-              <button class="btn btn-secondary btn-sm btn-chart-export" data-target="imgChart1" data-title="Cost of One Data Breach (IBM 2026)">Save as PNG</button>
-            </div>
-            <div class="chart-card-body">
-              <img class="chart-img" id="imgChart1" src="/static/assets/charts/1_cost.png" alt="Cost of one data breach comparison chart based on IBM 2026 report">
-            </div>
-            <div class="chart-card-footer">
-              <span>Global avg $4.99M vs AI-enabled $6.00M</span>
-              <span>IBM 2026 Report</span>
-            </div>
-          </article>
-
-          <!-- Photo 2: 2_slow (Slow is Expensive) -->
-          <article class="chart-card" id="cardChart2">
-            <div class="chart-card-header">
-              <div>
-                <span class="chart-tag">PHOTO 02 // 2_SLOW</span>
-                <h4 class="chart-card-title">Slow is Expensive</h4>
-              </div>
-              <button class="btn btn-secondary btn-sm btn-chart-export" data-target="imgChart2" data-title="Breach Containment Speed Impact (IBM 2026)">Save as PNG</button>
-            </div>
-            <div class="chart-card-body">
-              <img class="chart-img" id="imgChart2" src="/static/assets/charts/2_slow.png" alt="Breach containment speed comparison: rapid containment vs delayed containment">
-            </div>
-            <div class="chart-card-footer">
-              <span>Rapid containment saves $1.76M+</span>
-              <span>Zero-Trust Gateway</span>
-            </div>
-          </article>
-
-          <!-- Photo 3: 3_modeled (Modeled Yearly Exposure) -->
-          <article class="chart-card" id="cardChart3">
-            <div class="chart-card-header">
-              <div>
-                <span class="chart-tag">PHOTO 03 // 3_MODELED</span>
-                <h4 class="chart-card-title">Modeled Yearly Exposure</h4>
-              </div>
-              <button class="btn btn-secondary btn-sm btn-chart-export" data-target="imgChart3" data-title="Modeled Yearly Loss Exposure Comparison">Save as PNG</button>
-            </div>
-            <div class="chart-card-body">
-              <img class="chart-img" id="imgChart3" src="/static/assets/charts/3_modeled.png" alt="Modeled yearly loss exposure comparison with and without Tether">
-            </div>
-            <div class="chart-card-footer">
-              <span>95.65% empirical attack mitigation</span>
-              <span>Modeled Estimate</span>
-            </div>
-          </article>
+        <!-- Run Action Row -->
+        <div class="run-action-bar">
+          <button class="btn btn-primary btn-lg" id="btnRunSideBySide">
+            <span>⚡ Run Side-by-Side Injection Test</span>
+          </button>
+          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-secondary);">
+            * Raw agent is simulated for benchmark comparison; Tether gateway defense decisions are live and cryptographically chained.
+          </span>
         </div>
 
-        <!-- Technical 3 Photos Grid (Toggled) -->
-        <div class="charts-grid" id="gridTechnicalCharts" style="display: none;">
-          <!-- Tech Photo 1: Shield Off vs On -->
-          <article class="chart-card" id="cardChartTech1">
-            <div class="chart-card-header">
-              <div>
-                <span class="chart-tag">DEFENSE 01 // SHIELD COMPARISON</span>
-                <h4 class="chart-card-title">Shield Off vs Shield On</h4>
-              </div>
-              <button class="btn btn-secondary btn-sm btn-chart-export" data-target="imgChartTech1" data-title="Shield Off vs On Architecture">Save as PNG</button>
+        <!-- Side-by-Side Comparison Container -->
+        <div class="comparison-grid" id="sideBySideOutputBox">
+          
+          <!-- Column A: Shield OFF -->
+          <div class="comparison-col col-off" id="colShieldOff">
+            <div class="col-header">
+              <span class="col-title" style="color: var(--accent-red);">
+                <span>✕</span>
+                <span>Shield OFF (Raw Unprotected Agent)</span>
+              </span>
+              <span class="status-pill pill-shield-off" id="offVerdictBadge">VULNERABLE</span>
             </div>
-            <div class="chart-card-body">
-              <img class="chart-img" id="imgChartTech1" src="/static/assets/charts/1_shield_off_vs_on.png" alt="Side by side comparison of Shield Off versus Shield On">
-            </div>
-            <div class="chart-card-footer">
-              <span>Raw Agent vs Protected Gateway</span>
-              <span>Architecture</span>
-            </div>
-          </article>
 
-          <!-- Tech Photo 2: Detector Catch Rate -->
-          <article class="chart-card" id="cardChartTech2">
-            <div class="chart-card-header">
-              <div>
-                <span class="chart-tag">DEFENSE 02 // CATCH RATE</span>
-                <h4 class="chart-card-title">Detector Catch Rate</h4>
-              </div>
-              <button class="btn btn-secondary btn-sm btn-chart-export" data-target="imgChartTech2" data-title="Empirical Detector Catch Rate Comparison">Save as PNG</button>
+            <div class="col-headline-banner banner-off">
+              <span class="banner-title">RAW AGENT OUTCOME:</span>
+              <span class="banner-body" id="offOutcomeHeadline">Running initial test...</span>
             </div>
-            <div class="chart-card-body">
-              <img class="chart-img" id="imgChartTech2" src="/static/assets/charts/2_detector_catch_rate.png" alt="Empirical detector catch rate on heldout vs adaptive benchmarks">
-            </div>
-            <div class="chart-card-footer">
-              <span>Heldout (95.65%) vs Adaptive (9.09%)</span>
-              <span>Empirical Eval</span>
-            </div>
-          </article>
 
-          <!-- Tech Photo 3: Defense Layers Venn -->
-          <article class="chart-card" id="cardChartTech3">
-            <div class="chart-card-header">
-              <div>
-                <span class="chart-tag">DEFENSE 03 // VENN OVERLAP</span>
-                <h4 class="chart-card-title">Defense-in-Depth Overlap</h4>
+            <div class="col-metric-row">
+              <span>SECURITY RISK:</span>
+              <div class="risk-track">
+                <div class="risk-fill-off" id="offRiskGauge" style="width: 0%;"></div>
               </div>
-              <button class="btn btn-secondary btn-sm btn-chart-export" data-target="imgChartTech3" data-title="Defense in Depth Overlap Diagram">Save as PNG</button>
+              <span id="offRiskScoreText" style="font-weight: 800; color: var(--accent-red);">-- / 100</span>
             </div>
-            <div class="chart-card-body">
-              <img class="chart-img" id="imgChartTech3" src="/static/assets/charts/3_defense_layers_venn.png" alt="Venn diagram illustrating overlap between detector, policy gating, and human sign-off">
+
+            <div class="tool-action-box">
+              <span class="tool-action-label">EXECUTED TOOL ACTION:</span>
+              <div class="tool-chips-wrap" id="offToolActionsContainer">
+                <span class="tool-chip tool-chip-danger">None</span>
+              </div>
             </div>
-            <div class="chart-card-footer">
-              <span>Detector + Policies + Human Sign-off</span>
-              <span>Layer Interlocking</span>
+
+            <div class="tool-action-box">
+              <span class="tool-action-label">AGENT RAW OUTPUT:</span>
+              <pre class="raw-output-pre" id="offAgentOutputText">Click 'Run Side-by-Side Injection Test' above to trigger execution.</pre>
             </div>
-          </article>
+          </div>
+
+          <!-- Column B: Shield ON -->
+          <div class="comparison-col col-on" id="colShieldOn">
+            <div class="col-header">
+              <span class="col-title" style="color: var(--accent-green);">
+                <span>✓</span>
+                <span>Shield ON (Tether Security Gateway)</span>
+              </span>
+              <span class="status-pill pill-shield-on" id="onVerdictBadge">PROTECTED</span>
+            </div>
+
+            <div class="col-headline-banner banner-on">
+              <span class="banner-title">TETHER DEFENSE OUTCOME:</span>
+              <span class="banner-body" id="onOutcomeHeadline">Running initial test...</span>
+            </div>
+
+            <div class="col-metric-row">
+              <span>GATEWAY RISK LEVEL:</span>
+              <div class="risk-track">
+                <div class="risk-fill-on" id="onRiskGauge" style="width: 0%;"></div>
+              </div>
+              <span id="onRiskScoreText" style="font-weight: 800; color: var(--accent-green);">-- / 100</span>
+            </div>
+
+            <div class="tool-action-box">
+              <span class="tool-action-label">GATEWAY POLICY DECISION:</span>
+              <div class="tool-chips-wrap" id="onToolActionsContainer">
+                <span class="tool-chip tool-chip-success">None</span>
+              </div>
+            </div>
+
+            <div class="tool-action-box">
+              <span class="tool-action-label">DETECTION FINDINGS &amp; ACTIVE DEFENSE:</span>
+              <pre class="raw-output-pre" id="onAgentOutputText">Protected gateway decisions and intercepted findings will appear here.</pre>
+            </div>
+          </div>
+
         </div>
+
       </div>
+
+      <!-- Step Navigation to Section 02 -->
+      <div class="section-step-nav">
+        <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 700;">STAGE 01 COMPLETE</span>
+        <button class="btn btn-primary btn-lg" id="btnNextToSection2">
+          <span>Proceed to Stage 02: Blockchain Audit Chain &rarr;</span>
+        </button>
+      </div>
+
     </section>
 
-    <!-- 4. OPERATIONAL FEEDS: LIVE ATTACK FEED & APPROVALS QUEUE -->
-    <section class="feeds-section" aria-label="Live Attack Feed and Approvals Queue">
-      <div class="prototype-grid">
-        <!-- Left Column: Live Attack Feed -->
-        <article class="panel-card" id="cardAttackFeed" aria-label="Real-time Attack Feed">
-          <div class="panel-top-row">
-            <h3 class="panel-heading">
-              <span class="pulse-amber" id="feedPulseIndicator" style="background: var(--accent-green); box-shadow: 0 0 10px var(--accent-green);"></span>
-              <span>LIVE ATTACK FEED</span>
-            </h3>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span id="feedStatusText" style="font-family: var(--font-mono); font-size: 11px; color: var(--accent-green);">CONNECTING</span>
-              <button class="btn btn-secondary btn-sm" id="btnToggleFeedPause">Pause</button>
+    <!-- ================================================================= -->
+    <!-- SECTION 02: BLOCKCHAIN SHA-256 CRYPTOGRAPHIC AUDIT CHAIN           -->
+    <!-- ================================================================= -->
+    <section class="playground-section-panel" id="sectionPanel2" role="tabpanel" aria-labelledby="tabSection2">
+      
+      <div class="console-card">
+        <div class="console-card-header">
+          <div class="card-title-group">
+            <span class="card-section-tag">STAGE 02 // MATHEMATICAL CONTINUITY</span>
+            <h2 class="card-title">Blockchain &amp; Cryptographic SHA-256 Audit Chain</h2>
+            <p class="card-desc">
+              Every single inbound request, threat scan, tool call, and policy decision is appended into a cryptographic hash chain. Each record contains the SHA-256 digest of the previous record. If an attacker or rogue administrator modifies or deletes a single byte in the database, the cryptographic chain immediately breaks and identifies the exact tampered record.
+            </p>
+          </div>
+          <button class="btn btn-sm" id="btnExportAuditProof">Save Proof</button>
+        </div>
+
+        <!-- Live Chain Verification Banner -->
+        <div class="chain-status-banner status-valid" id="chainStatusBanner">
+          <div class="chain-status-left">
+            <div class="chain-status-title" id="chainStatusTitle">
+              <span>✅</span>
+              <span>CRYPTOGRAPHIC INTEGRITY: VERIFIED // TAMPER-FREE</span>
             </div>
+            <span class="chain-status-desc" id="chainStatusDesc">
+              All records cryptographically linked via canonical SHA-256. Zero unauthorized modifications detected.
+            </span>
           </div>
 
-          <div class="feed-stream-container" id="feedItemsContainer" role="log" aria-live="polite">
-            <div class="empty-state-notice" id="feedInitialNotice">
-              <span>Listening to live Server-Sent Events stream (/events)...</span>
+          <div class="chain-stats-pills">
+            <div class="chain-pill">
+              <span style="color: var(--ink-muted);">VERIFIED RECORDS:</span>
+              <strong id="chainTotalRecords">--</strong>
+            </div>
+            <div class="chain-pill">
+              <span style="color: var(--ink-muted);">BROKEN LINKS:</span>
+              <strong id="chainBrokenLinks" style="color: var(--accent-green);">0</strong>
+            </div>
+            <div class="chain-pill">
+              <span style="color: var(--ink-muted);">ALGORITHM:</span>
+              <strong>SHA-256</strong>
             </div>
           </div>
-        </article>
+        </div>
 
-        <!-- Right Column: Approvals Queue -->
-        <article class="panel-card" id="cardApprovalsQueue" aria-label="Human Security Approvals Queue">
-          <div class="panel-top-row">
-            <h3 class="panel-heading">
-              <span>HUMAN APPROVALS QUEUE</span>
-            </h3>
-            <span class="status-pill pill-quarantine" id="pendingApprovalsBadge">0 Pending</span>
+        <!-- Interactive Database Tamper Testing Console -->
+        <div class="tamper-control-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <div>
+              <span class="input-label" style="color: var(--accent-red); margin: 0;">INTERACTIVE TAMPER ENGINE // TEST CHAIN IMMUTABILITY</span>
+              <p style="font-size: 12px; color: var(--ink-secondary); margin-top: 2px;">
+                Simulate a database attack: maliciously modify an audit record's SHA-256 hash or verdict to see Tether's tamper-detection engine in action.
+              </p>
+            </div>
+            <span class="status-pill pill-quarantine">FAIL-CLOSED PROTOCOL</span>
           </div>
 
-          <div class="approvals-list" id="approvalsItemsContainer">
-            <div class="empty-state-notice" id="approvalsEmptyNotice">
-              <span style="font-size: 20px;">🛡️</span>
-              <span style="font-weight: 600;">Nothing waiting. Run a test above.</span>
-              <span style="font-size: 12px;">Sensitive actions from tainted sessions will appear here for sign-off.</span>
+          <div class="tamper-actions-row">
+            <button class="btn btn-danger btn-lg" id="btnTamperAuditChain">
+              <span>⚡ Malicious Database Attack // Alter SHA-256 Hash</span>
+            </button>
+            <button class="btn btn-success btn-lg" id="btnRestoreAuditChain">
+              <span>↺ Restore Clean Cryptographic Chain</span>
+            </button>
+            <button class="btn btn-sm" id="btnVerifyAuditChain">
+              <span>🔍 Run Cryptographic Verification Audit</span>
+            </button>
+          </div>
+
+          <!-- Terminal Output Proving the Chain Holds -->
+          <div>
+            <label class="input-label">CRYPTOGRAPHIC VERIFICATION CONSOLE OUTPUT (REAL-TIME PROOF):</label>
+            <div class="terminal-proof-box" id="terminalProofBox" role="log" aria-live="polite">
+>>> TETHER CRYPTOGRAPHIC HASH CHAIN ENGINE INITIALIZED.
+>>> Hash Continuity: current_hash = SHA256(prev_hash + canonical_json_payload)
+>>> All records verified against genesis block (0000000000000000).
+>>> Status: Chain is mathematically intact. Ready for tamper test.
             </div>
           </div>
-        </article>
+        </div>
+
+        <!-- Visual Chained Blocks Explorer -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span class="input-label" style="margin: 0;">RECENT CRYPTOGRAPHIC BLOCKS IN THE DATABASE:</span>
+            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-muted);">SCROLL HORIZONTALLY TO EXPLORE</span>
+          </div>
+
+          <div class="chain-blocks-container" id="chainBlocksContainer">
+            <div style="padding: 24px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-muted);">
+              Loading recent cryptographic audit records...
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      <!-- Step Navigation Between Sections -->
+      <div class="section-step-nav">
+        <button class="btn btn-sm" id="btnBackToSection1">
+          <span>&larr; Back to Stage 01: Injection Comparison</span>
+        </button>
+        <button class="btn btn-primary btn-lg" id="btnNextToSection3">
+          <span>Proceed to Stage 03: Approvals &amp; Defense Depth &rarr;</span>
+        </button>
+      </div>
+
     </section>
 
-    <!-- 5. WHAT STOPPED IT, AND WHAT IT MISSES -->
-    <section class="defense-breakdown-section" id="sectionWhatStoppedIt" aria-label="Defense Layer Analysis and Known Gaps">
-      <div class="section-header">
-        <div class="section-title-wrap">
-          <span class="section-number">AUDIT</span>
-          <h3 class="panel-heading" style="font-size: 18px;">WHAT STOPPED IT, AND WHAT IT MISSES</h3>
+    <!-- ================================================================= -->
+    <!-- SECTION 03: APPROVALS QUEUE & DEFENSE ARCHITECTURE                -->
+    <!-- ================================================================= -->
+    <section class="playground-section-panel" id="sectionPanel3" role="tabpanel" aria-labelledby="tabSection3">
+      
+      <div class="console-card">
+        <div class="console-card-header">
+          <div class="card-title-group">
+            <span class="card-section-tag">STAGE 03 // HUMAN-IN-THE-LOOP &amp; ZERO-TRUST ARCHITECTURE</span>
+            <h2 class="card-title">Human Approvals Queue &amp; Defense-in-Depth Layer Metrics</h2>
+            <p class="card-desc">
+              Autonomous agents must never have unilateral authorization for irreversible or high-risk actions. High-consequence requests are held in quarantine for human approval, while Tether's 5 defensive layers prevent bypass at every stage.
+            </p>
+          </div>
+          <span class="status-pill pill-quarantine" id="pendingApprovalsBadgeTop">0 Pending</span>
         </div>
-        <button class="btn btn-secondary btn-sm" id="btnExportLayerChart">Save as PNG</button>
+
+        <div class="section-3-grid">
+          
+          <!-- Component 1: Live Approvals Queue Table -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <span class="input-label" style="margin: 0;">PENDING HUMAN SECURITY APPROVALS QUEUE:</span>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent-orange); font-weight: 700;">
+                CAPABILITY TOKENS ARE NEVER EXPOSED TO CLIENT BROWSER
+              </span>
+            </div>
+
+            <div class="approvals-table-wrap">
+              <table class="approvals-table">
+                <thead>
+                  <tr>
+                    <th>Time (UTC)</th>
+                    <th>Agent</th>
+                    <th>Requested Tool</th>
+                    <th>Redacted Parameters</th>
+                    <th>Risk Score</th>
+                    <th>Reason</th>
+                    <th>Security Action</th>
+                  </tr>
+                </thead>
+                <tbody id="approvalsTableBody">
+                  <tr>
+                    <td colspan="7" class="approvals-empty">
+                      Loading pending approvals from gateway...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Component 2: 5-Layer Defense-in-Depth Stack -->
+          <div>
+            <span class="input-label" style="margin-bottom: 10px;">5-LAYER DEFENSE-IN-DEPTH ARCHITECTURE:</span>
+            <div class="defense-layers-grid">
+              
+              <div class="layer-card">
+                <span class="layer-card-num">LAYER 01</span>
+                <h4 class="layer-card-title">Input Heuristics</h4>
+                <p class="layer-card-desc">
+                  Sub-2ms pattern matcher and regex pre-screener catching 95.65% known injections, jailbreaks, and overrides.
+                </p>
+              </div>
+
+              <div class="layer-card">
+                <span class="layer-card-num">LAYER 02</span>
+                <h4 class="layer-card-title">Intent Boundary</h4>
+                <p class="layer-card-desc">
+                  Session risk and goal-drift tracker detecting gradual crescendo attacks and untrusted context contamination.
+                </p>
+              </div>
+
+              <div class="layer-card">
+                <span class="layer-card-num">LAYER 03</span>
+                <h4 class="layer-card-title">Capability Tokens</h4>
+                <p class="layer-card-desc">
+                  Cryptographically signed HMAC-SHA256 single-use tokens. Even if an LLM is hijacked, it cannot execute unauthorized tools.
+                </p>
+              </div>
+
+              <div class="layer-card">
+                <span class="layer-card-num">LAYER 04</span>
+                <h4 class="layer-card-title">SSRF &amp; Output Guard</h4>
+                <p class="layer-card-desc">
+                  Sanitizes outbound responses, blocks canary token leakage, and forbids access to cloud metadata (169.254.169.254).
+                </p>
+              </div>
+
+              <div class="layer-card">
+                <span class="layer-card-num">LAYER 05</span>
+                <h4 class="layer-card-title">Audit Blockchain</h4>
+                <p class="layer-card-desc">
+                  Append-only SHA-256 cryptographic chain ensuring mathematical tamper-evidence for every single event.
+                </p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Component 3: Live Telemetry Counters -->
+          <div>
+            <span class="input-label" style="margin-bottom: 10px;">LIVE OPERATIONAL TELEMETRY (FROM REAL STATS):</span>
+            <div class="stats-tiles-grid">
+              
+              <div class="stat-tile">
+                <span class="stat-tile-label">REQUESTS SCREENED</span>
+                <span class="stat-tile-val" id="statRequestsScreened">--</span>
+                <span class="stat-tile-caption">Inbound prompts &amp; tool actions</span>
+              </div>
+
+              <div class="stat-tile">
+                <span class="stat-tile-label">ATTACKS BLOCKED</span>
+                <span class="stat-tile-val" style="color: var(--accent-red);" id="statAttacksBlocked">--</span>
+                <span class="stat-tile-caption">Prompt injections halted</span>
+              </div>
+
+              <div class="stat-tile">
+                <span class="stat-tile-label">ACTIONS HELD FOR HUMAN</span>
+                <span class="stat-tile-val" style="color: var(--accent-amber);" id="statActionsHeld">--</span>
+                <span class="stat-tile-caption">Irreversible actions quarantined</span>
+              </div>
+
+              <div class="stat-tile">
+                <span class="stat-tile-label">ACTIVE QUARANTINES</span>
+                <span class="stat-tile-val" style="color: var(--accent-green);" id="statQuarantines">--</span>
+                <span class="stat-tile-caption">Contaminated agent sessions</span>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Component 4: Honest Disclosure Card -->
+          <div class="honest-disclosure-card">
+            <span class="honest-disclosure-title">HONEST DISCLOSURE &amp; BENCHMARK BOUNDARIES</span>
+            <div class="disclosure-items">
+              <div>
+                <strong>Heldout Test Set Recall:</strong>
+                <span id="gapHeldoutVal" style="color: var(--accent-green); font-weight: 800;">95.65%</span>
+                <span> (44 of 46 representative attacks detected on tuned heuristics).</span>
+              </div>
+              <div>
+                <strong>Adaptive Adversarial Baseline:</strong>
+                <span id="gapAdaptiveVal" style="color: var(--accent-amber); font-weight: 800;">9.09%</span>
+                <span> (2 of 22 detected) &mdash; demonstrates why surface heuristics alone cannot stop semantic evasion, proving the mandatory need for defense-in-depth and capability token gating.</span>
+              </div>
+              <div>
+                <strong>One Documented Escape (abuse_20):</strong>
+                <span> A custom passphrase sent to an internal corporate email address in an untainted session matched no credential signature. Stopped at Layer 3 by strict tool capability allowlists.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
-      <p class="section-desc">
-        Empirical breakdown of defense layers and complete honest disclosure of current detection boundaries.
-      </p>
-
-      <div class="defense-breakdown-grid">
-        <!-- Left: Real Layer Breakdown Bar Chart -->
-        <div class="panel-card" id="cardLayerBreakdown">
-          <div class="panel-top-row">
-            <span class="panel-heading" style="font-size: 15px;">Interceptions by Defense Layer</span>
-            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">FROM REAL STATS</span>
-          </div>
-
-          <div class="layer-bars-container" id="layerBarsContainer">
-            <!-- Bar 1: Text Detector -->
-            <div class="layer-bar-group">
-              <div class="layer-bar-top">
-                <span>1. Text Detector (Heuristics &amp; Regex)</span>
-                <span id="valBarDetector" style="color: var(--accent-cyan); font-family: var(--font-mono);">--</span>
-              </div>
-              <div class="layer-progress-track">
-                <div class="layer-progress-fill fill-detector" id="fillBarDetector" style="width: 0%;"></div>
-              </div>
-            </div>
-
-            <!-- Bar 2: Permission Rules -->
-            <div class="layer-bar-group">
-              <div class="layer-bar-top">
-                <span>2. Permission Rules (Tool Gating)</span>
-                <span id="valBarPermission" style="color: var(--accent-green); font-family: var(--font-mono);">--</span>
-              </div>
-              <div class="layer-progress-track">
-                <div class="layer-progress-fill fill-permission" id="fillBarPermission" style="width: 0%;"></div>
-              </div>
-            </div>
-
-            <!-- Bar 3: Human Approval -->
-            <div class="layer-bar-group">
-              <div class="layer-bar-top">
-                <span>3. Human Sign-Off (Escalations)</span>
-                <span id="valBarApproval" style="color: var(--accent-amber); font-family: var(--font-mono);">--</span>
-              </div>
-              <div class="layer-progress-track">
-                <div class="layer-progress-fill fill-approval" id="fillBarApproval" style="width: 0%;"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right: Known Gaps Card -->
-        <div class="panel-card" id="cardKnownGaps">
-          <div class="panel-top-row">
-            <span class="panel-heading" style="font-size: 15px; color: var(--accent-orange);">Known Gaps &amp; Test Boundaries</span>
-            <span style="font-family: var(--font-mono); font-size: 11px; color: var(--accent-orange);">HONEST DISCLOSURE</span>
-          </div>
-
-          <div class="known-gaps-card">
-            <div class="gap-metric-item">
-              <span class="gap-bullet">⚠</span>
-              <div>
-                <strong>Detector Catch Rate:</strong>
-                <span> Catches </span>
-                <strong id="gapHeldoutVal" style="color: var(--accent-green);">95.65%</strong>
-                <span> on our own test set (tuned), but drops to </span>
-                <strong id="gapAdaptiveVal" style="color: var(--accent-amber);">9.09%</strong>
-                <span> on untuned adaptive adversarial attacks.</span>
-              </div>
-            </div>
-
-            <div class="gap-metric-item">
-              <span class="gap-bullet">🛡</span>
-              <div>
-                <strong>Permission Layer Defense:</strong>
-                <span> Intercepted </span>
-                <strong>22 of 23</strong>
-                <span> abusive actions (denied 18 directly, escalated 4 to human sign-off).</span>
-              </div>
-            </div>
-
-            <div class="gap-metric-item">
-              <span class="gap-bullet">✕</span>
-              <div>
-                <strong>One Known Escape (abuse_20):</strong>
-                <span> Custom passphrase sent to internal corporate email in an untainted session matched no credential pattern and bypassed detection.</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- Step Navigation Back to Stage 02 or 01 -->
+      <div class="section-step-nav">
+        <button class="btn btn-sm" id="btnBackToSection2">
+          <span>&larr; Back to Stage 02: Blockchain Audit Chain</span>
+        </button>
+        <button class="btn btn-primary btn-lg" id="btnReturnToSection1">
+          <span>↺ Return to Stage 01: Injection Comparison</span>
+        </button>
       </div>
+
     </section>
 
   </main>
-
-  <!-- Audit Details Forensics Modal -->
-  <div class="modal-overlay" id="auditDetailsModal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="modalTitle" style="font-family: var(--font-display); font-size: 18px; color: #fff;">
-          Cryptographic Audit Log Details (Read-Only)
-        </h3>
-        <button class="btn btn-secondary btn-sm" id="btnCloseAuditModal">✕ Close</button>
-      </div>
-      <div class="modal-body">
-        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
-          Recent tamper-evident audit records linked with SHA-256 hashes. No secret keys or raw payload data are exposed.
-        </p>
-        <div style="overflow-x: auto;">
-          <table class="audit-table">
-            <thead>
-              <tr>
-                <th>Time (UTC)</th>
-                <th>Agent</th>
-                <th>Action</th>
-                <th>Verdict</th>
-                <th>Risk</th>
-                <th>Reason (Plain English)</th>
-                <th>SHA-256 Hash</th>
-              </tr>
-            </thead>
-            <tbody id="auditTableBody">
-              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading recent audit records...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Master Footer -->
   <footer class="dashboard-footer">
@@ -660,14 +556,13 @@
     </div>
 
     <div class="footer-links">
-      <button id="btnOpenAuditDetails" class="footer-link-btn" title="View recent tamper-evident audit log records">Audit Details</button>
-      <a href="/docs" target="_blank" rel="noopener">API Docs (/docs)</a>
-      <a href="/static/landing.html" target="_blank">Threat Model</a>
+      <a href="/" target="_blank">Overview</a>
+      <a href="/docs" target="_blank" rel="noopener">API Specification (/docs)</a>
       <a href="https://github.com/hemanth2607-cyber/agent-hijack-gateway" target="_blank" rel="noopener">GitHub</a>
     </div>
   </footer>
 
-  <!-- External Scripts Only (Strict CSP Compliance: No Inline Scripts) -->
+  <!-- External Scripts Only (Strict CSP Compliance: Zero Inline Scripts) -->
   <script src="/static/reasons.js"></script>
   <script src="/static/dashboard.js"></script>
 </body>
