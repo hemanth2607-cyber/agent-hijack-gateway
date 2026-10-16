@@ -209,19 +209,32 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=()"
 
-        # Content Security Policy (enforces external scripts only, supports video media)
+        # Content Security Policy (enforces external scripts only, supports video media and Swagger docs)
         media_src = "'self'"
         frame_src = "'none'"
         if settings.demo_video_url:
             media_src += " https://www.youtube.com https://player.vimeo.com"
             frame_src = "'self' https://www.youtube.com https://player.vimeo.com"
 
+        is_docs = request.url.path.startswith(("/docs", "/redoc"))
+        script_src = "'self' 'unsafe-inline' https://cdn.jsdelivr.net" if is_docs else "'self'"
+        style_src = (
+            "'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net"
+            if is_docs
+            else "'self' 'unsafe-inline' https://fonts.googleapis.com"
+        )
+        img_src = (
+            "'self' data: https://lh3.googleusercontent.com https://fastapi.tiangolo.com"
+            if is_docs
+            else "'self' data: https://lh3.googleusercontent.com"
+        )
+
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; "
-            "script-src 'self'; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            f"script-src {script_src}; "
+            f"style-src {style_src}; "
             "font-src 'self' https://fonts.gstatic.com data:; "
-            "img-src 'self' data: https://lh3.googleusercontent.com; "
+            f"img-src {img_src}; "
             f"media-src {media_src}; "
             f"frame-src {frame_src}; "
             "connect-src 'self'; "

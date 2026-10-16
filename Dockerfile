@@ -30,7 +30,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Invalidate cache for new application code
-ARG CACHEBUST=20261016_0927
+ARG CACHEBUST=20261016_0932
 COPY --chown=shield:shield . /app/
 
 # Switch to unprivileged security user
