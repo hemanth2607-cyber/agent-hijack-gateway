@@ -28,7 +28,7 @@ services:
       - key: DEMO_MODE
         value: "true"
       - key: DATABASE_URL
-        value: sqlite+aiosqlite:////app/data/shield.db
+        value: sqlite+aiosqlite:///./shield.db
       - key: SECRET_KEY
         generateValue: true
       - key: API_KEYS_SALT

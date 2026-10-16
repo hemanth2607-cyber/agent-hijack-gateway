@@ -129,9 +129,41 @@ class PolicyHistoryModel(Base):
     updated_by = Column(String(100), nullable=False)
 
 
+import os
+import re
+import logging
+
+logger = logging.getLogger("agent_shield.db")
+
+
+def _get_safe_database_url() -> str:
+    """Ensures parent directory for SQLite exists and is writable, falling back safely."""
+    url = settings.database_url
+    if "sqlite" in url:
+        match = re.search(r"sqlite(?:\+[a-z]+)?:///(.*)", url)
+        if match:
+            raw_path = match.group(1)
+            dir_path = os.path.dirname(raw_path)
+            if dir_path:
+                try:
+                    os.makedirs(dir_path, exist_ok=True)
+                    test_file = os.path.join(dir_path, ".db_write_test")
+                    with open(test_file, "w") as f:
+                        f.write("ok")
+                    os.remove(test_file)
+                except Exception as e:
+                    logger.warning(
+                        "[DATABASE CONFIG] Directory '%s' not writable (%s). Falling back to './shield.db'.",
+                        dir_path,
+                        e,
+                    )
+                    return "sqlite+aiosqlite:///./shield.db"
+    return url
+
+
 # Engine & Session Factory setup
 engine = create_async_engine(
-    settings.database_url,
+    _get_safe_database_url(),
     echo=False,
     future=True,
 )

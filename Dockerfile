@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Create data directory for persistent SQLite database and give shield user ownership
-RUN mkdir -p /app/data && chown -R shield:shield /app/data
+RUN mkdir -p /app/data && chmod 777 /app/data && chown -R shield:shield /app /app/data
 
 # Install Python dependencies first for layer caching
 COPY requirements.txt /app/
@@ -30,7 +30,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Invalidate cache for new application code
-ARG CACHEBUST=20261016_0354
+ARG CACHEBUST=20261016_0825
 COPY --chown=shield:shield . /app/
 
 # Switch to unprivileged security user
